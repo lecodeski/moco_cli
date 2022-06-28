@@ -120,7 +120,7 @@ pub fn mandatory_validator(input: &str) -> Option<String> {
     }
 }
 
-pub async fn promp_task_select(
+pub async fn prompt_task_select(
     moco_client: &MocoClient,
     project: Option<i64>,
     task: Option<i64>,
@@ -210,7 +210,7 @@ async fn activity_select(
     Ok(activity.clone())
 }
 
-pub async fn promp_activity_select(
+pub async fn prompt_activity_select(
     moco_client: &MocoClient,
     activity: Option<i64>,
 ) -> Result<Activity, Box<dyn Error>> {

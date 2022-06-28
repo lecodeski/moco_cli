@@ -4,7 +4,7 @@ use chrono::{NaiveDate, Utc};
 use log::trace;
 
 use jira_tempo::client::JiraTempoClient;
-use utils::{promp_activity_select, promp_task_select, render_table};
+use utils::{prompt_activity_select, prompt_task_select, render_table};
 
 use crate::moco::model::{ControlActivityTimer, CreateActivity, DeleteActivity, GetActivity};
 use crate::utils::activity_select_today;
@@ -147,7 +147,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         } => {
             let now = Utc::now().format("%Y-%m-%d").to_string();
 
-            let (project, task) = promp_task_select(&moco_client, project, task).await?;
+            let (project, task) = prompt_task_select(&moco_client, project, task).await?;
 
             let date = if let Some(d) = date {
                 d
@@ -190,7 +190,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 .await?;
         }
         cli::Commands::Edit { activity } => {
-            let activity = promp_activity_select(&moco_client, activity).await?;
+            let activity = prompt_activity_select(&moco_client, activity).await?;
 
             let now = Utc::now().format("%Y-%m-%d").to_string();
 
@@ -299,7 +299,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
                 trace!("Tempo: {:#?}", worklogs);
 
-                let (project, task) = promp_task_select(&moco_client, project, task).await?;
+                let (project, task) = prompt_task_select(&moco_client, project, task).await?;
 
                 let activities = moco_client
                     .get_activities(
