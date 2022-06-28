@@ -10,7 +10,7 @@ use crate::moco::model::{ControlActivityTimer, CreateActivity, DeleteActivity, G
 use crate::utils::activity_select_today;
 use crate::{
     moco::{client::MocoClient, model::EditActivity},
-    utils::{ask_question, mandatory_validator, optional_validator},
+    utils::{ask_question, mandatory_validator},
 };
 
 mod cli;
@@ -144,7 +144,6 @@ async fn main() -> Result<(), Box<dyn Error>> {
             task,
             hours,
             date,
-            description,
         } => {
             let now = Utc::now().format("%Y-%m-%d").to_string();
 
@@ -180,19 +179,12 @@ async fn main() -> Result<(), Box<dyn Error>> {
                     .unwrap_or_else(|| answer.parse::<f64>().unwrap())
             };
 
-            let description = if let Some(d) = description {
-                d
-            } else {
-                ask_question("Description: ", &optional_validator)?
-            };
-
             moco_client
                 .create_activity(&CreateActivity {
                     date,
                     project_id: project.id,
                     task_id: task.id,
                     hours: Some(hours),
-                    description,
                     ..Default::default()
                 })
                 .await?;

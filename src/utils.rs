@@ -112,10 +112,6 @@ pub fn ask_question(
     }
 }
 
-pub fn optional_validator(_: &str) -> Option<String> {
-    None
-}
-
 pub fn mandatory_validator(input: &str) -> Option<String> {
     if input.is_empty() {
         Some("Input is required".to_string())
