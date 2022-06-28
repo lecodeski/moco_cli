@@ -1,16 +1,16 @@
 use std::{cell::RefCell, error::Error, io::Write, sync::Arc, vec};
 
+use chrono::Utc;
+use log::trace;
+
+use jira_tempo::client::JiraTempoClient;
+use utils::{promp_activity_select, promp_task_select, render_table};
+
+use crate::moco::model::{ControlActivityTimer, CreateActivity, DeleteActivity, GetActivity};
 use crate::{
     moco::{client::MocoClient, model::EditActivity},
     utils::{ask_question, mandatory_validator, optional_validator},
 };
-
-use chrono::Utc;
-use jira_tempo::client::JiraTempoClient;
-use log::trace;
-use utils::{promp_activity_select, promp_task_select, render_table};
-
-use crate::moco::model::{ControlActivityTimer, CreateActivity, DeleteActivity, GetActivity};
 
 mod cli;
 mod config;
@@ -145,10 +145,17 @@ async fn main() -> Result<(), Box<dyn Error>> {
             let hours = if let Some(h) = hours {
                 h
             } else {
-                ask_question("Duration (hours) - Default 'start timer': ", &|answer| {
-                    answer.parse::<f64>().err().map(|e| format!("{}", e))
-                })?
-                .parse::<f64>()?
+                let answer =
+                    ask_question("Duration (hours) - Default 'start timer': ", &|answer| {
+                        answer
+                            .is_empty()
+                            .then(|| None)
+                            .unwrap_or(answer.parse::<f64>().err().map(|e| format!("{}", e)))
+                    })?;
+                answer
+                    .is_empty()
+                    .then(|| 0_f64)
+                    .unwrap_or_else(|| answer.parse::<f64>().unwrap())
             };
 
             let description = if let Some(d) = description {
