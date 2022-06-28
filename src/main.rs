@@ -10,12 +10,7 @@ use jira_tempo::client::JiraTempoClient;
 use log::trace;
 use utils::{promp_activity_select, promp_task_select, render_table};
 
-use crate::moco::model::{
-    ControlActivityTimer,
-    CreateActivity,
-    DeleteActivity,
-    GetActivity
-};
+use crate::moco::model::{ControlActivityTimer, CreateActivity, DeleteActivity, GetActivity};
 
 mod cli;
 mod config;
@@ -322,7 +317,13 @@ async fn main() -> Result<(), Box<dyn Error>> {
                     })
                     .collect();
 
-                let output_list = vec!["Date", "Duration (hours)", "Description", "Project ID", "Task ID"];
+                let output_list = vec![
+                    "Date",
+                    "Duration (hours)",
+                    "Description",
+                    "Project ID",
+                    "Task ID",
+                ];
 
                 let mut output_list = vec![output_list.iter().map(|str| str.to_string()).collect()];
 

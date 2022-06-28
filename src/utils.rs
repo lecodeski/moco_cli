@@ -1,7 +1,7 @@
 use std::{error::Error, io::Write, vec};
 
-use crate::moco::model::{Activity, Project, ProjectTask};
 use crate::moco::client::MocoClient;
+use crate::moco::model::{Activity, Project, ProjectTask};
 
 use chrono::Utc;
 
@@ -199,7 +199,14 @@ pub async fn promp_activity_select(
     } else {
         let activity_index = render_list_select(
             &activities,
-            vec!["Index", "Date", "Duration", "Project", "Task", "Description"],
+            vec![
+                "Index",
+                "Date",
+                "Duration",
+                "Project",
+                "Task",
+                "Description",
+            ],
             "Choose your Acitivity: ",
             &(|(index, activity)| {
                 vec![
@@ -208,10 +215,11 @@ pub async fn promp_activity_select(
                     activity.hours.to_string(),
                     activity.project.name.clone(),
                     activity.task.name.clone(),
-                    activity.description
+                    activity
+                        .description
                         .as_ref()
                         .unwrap_or(&String::new())
-                        .to_string()
+                        .to_string(),
                 ]
             }),
         )?;
