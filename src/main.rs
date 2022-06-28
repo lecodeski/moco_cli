@@ -72,8 +72,6 @@ async fn main() -> Result<(), Box<dyn Error>> {
             month,
             date,
         } => {
-            let (from, to) = utils::select_from_to_date(today, week || !today && !month, month);
-
             let activities = match date {
                 Some(date) => {
                     println!(
@@ -84,12 +82,16 @@ async fn main() -> Result<(), Box<dyn Error>> {
                     );
                     moco_client.get_activities(date.clone(), date, None, None)
                 }
-                None => moco_client.get_activities(
-                    from.format("%Y-%m-%d").to_string(),
-                    to.format("%Y-%m-%d").to_string(),
-                    None,
-                    None,
-                ),
+                None => {
+                    let (from, to) =
+                        utils::select_from_to_date(today, week || !today && !month, month);
+                    moco_client.get_activities(
+                        from.format("%Y-%m-%d").to_string(),
+                        to.format("%Y-%m-%d").to_string(),
+                        None,
+                        None,
+                    )
+                }
             }
             .await?;
 
