@@ -169,28 +169,12 @@ pub async fn promp_task_select(
     Ok((project.clone(), task.clone()))
 }
 
-pub async fn promp_activity_select(
+async fn activity_select(
     moco_client: &MocoClient,
     activity: Option<i64>,
+    from: String,
+    to: String,
 ) -> Result<Activity, Box<dyn Error>> {
-    let now = Utc::now().format("%Y-%m-%d").to_string();
-
-    print!("List activities from (YYYY-MM-DD) - Default 'today': ");
-    std::io::stdout().flush()?;
-
-    let mut from = read_line()?;
-    if from.is_empty() {
-        from = now.clone();
-    }
-
-    print!("List activities to (YYYY-MM-DD) - Default 'last answer': ");
-    std::io::stdout().flush()?;
-
-    let mut to = read_line()?;
-    if to.is_empty() {
-        to = from.clone();
-    }
-
     let activities = moco_client.get_activities(from, to, None, None).await?;
     let activity = activities.iter().find(|a| a.id == activity.unwrap_or(-1));
 
@@ -228,4 +212,40 @@ pub async fn promp_activity_select(
     };
 
     Ok(activity.clone())
+}
+
+pub async fn promp_activity_select(
+    moco_client: &MocoClient,
+    activity: Option<i64>,
+) -> Result<Activity, Box<dyn Error>> {
+    let now = Utc::now().format("%Y-%m-%d").to_string();
+
+    print!("List activities from (YYYY-MM-DD) - Default 'today': ");
+    std::io::stdout().flush()?;
+
+    let mut from = read_line()?;
+    if from.is_empty() {
+        from = now.clone();
+    }
+
+    print!("List activities to (YYYY-MM-DD) - Default 'last answer': ");
+    std::io::stdout().flush()?;
+
+    let mut to = read_line()?;
+    if to.is_empty() {
+        to = from.clone();
+    }
+
+    activity_select(moco_client, activity, from, to).await
+}
+
+pub async fn activity_select_today(
+    moco_client: &MocoClient,
+    activity: Option<i64>,
+) -> Result<Activity, Box<dyn Error>> {
+    let now = Utc::now().format("%Y-%m-%d").to_string();
+
+    println!("List activities for today: ");
+
+    activity_select(moco_client, activity, now.clone(), now).await
 }

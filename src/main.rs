@@ -7,6 +7,7 @@ use jira_tempo::client::JiraTempoClient;
 use utils::{promp_activity_select, promp_task_select, render_table};
 
 use crate::moco::model::{ControlActivityTimer, CreateActivity, DeleteActivity, GetActivity};
+use crate::utils::activity_select_today;
 use crate::{
     moco::{client::MocoClient, model::EditActivity},
     utils::{ask_question, mandatory_validator, optional_validator},
@@ -230,7 +231,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         }
         cli::Commands::Timer { system, activity } => match system {
             cli::Timer::Start => {
-                let activity = promp_activity_select(&moco_client, activity).await?;
+                let activity = activity_select_today(&moco_client, activity).await?;
 
                 moco_client
                     .control_activity_timer(&ControlActivityTimer {
