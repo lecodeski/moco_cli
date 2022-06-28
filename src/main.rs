@@ -7,7 +7,7 @@ use jira_tempo::client::JiraTempoClient;
 use utils::{prompt_activity_select, prompt_task_select, render_table};
 
 use crate::moco::model::{ControlActivityTimer, CreateActivity, DeleteActivity, GetActivity};
-use crate::utils::activity_select_today;
+use crate::utils::{activity_select_date, activity_select_today};
 use crate::{
     moco::{client::MocoClient, model::EditActivity},
     utils::{ask_question, mandatory_validator},
@@ -235,8 +235,19 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 })
                 .await?;
         }
-        cli::Commands::Rm { activity } => {
-            let activity = promp_activity_select(&moco_client, activity).await?;
+        cli::Commands::Rm { activity, date } => {
+            let activity = match date {
+                Some(date) => {
+                    println!(
+                        "Delete activities for {}",
+                        NaiveDate::parse_from_str(&date, "%Y-%m-%d")
+                            .unwrap()
+                            .format("%Y-%m-%d, %A")
+                    );
+                    activity_select_date(&moco_client, activity, date.clone(), date).await
+                }
+                None => prompt_activity_select(&moco_client, activity).await,
+            }?;
 
             moco_client
                 .delete_activity(&DeleteActivity {

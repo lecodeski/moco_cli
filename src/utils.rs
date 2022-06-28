@@ -245,3 +245,12 @@ pub async fn activity_select_today(
 
     activity_select(moco_client, activity, now.clone(), now).await
 }
+
+pub async fn activity_select_date(
+    moco_client: &MocoClient,
+    activity: Option<i64>,
+    from: String,
+    to: String,
+) -> Result<Activity, Box<dyn Error>> {
+    activity_select(&moco_client, activity, from, to).await
+}

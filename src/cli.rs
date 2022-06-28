@@ -59,6 +59,9 @@ pub enum Commands {
     Rm {
         #[clap(long)]
         activity: Option<i64>,
+
+        #[clap(long)]
+        date: Option<String>,
     },
     #[clap(about = "Start/Stop activity timer", long_about = None)]
     Timer {
