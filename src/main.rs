@@ -1,6 +1,6 @@
 use std::{cell::RefCell, error::Error, io::Write, sync::Arc, vec};
 
-use chrono::Utc;
+use chrono::{NaiveDate, Utc};
 use log::trace;
 
 use jira_tempo::client::JiraTempoClient;
@@ -66,23 +66,42 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 println!("🤩 Logged in 🤩")
             }
         },
-        cli::Commands::List { today, week, month } => {
+        cli::Commands::List {
+            today,
+            week,
+            month,
+            date,
+        } => {
             let (from, to) = utils::select_from_to_date(today, week || !today && !month, month);
 
-            let activities = moco_client
-                .get_activities(
+            let activities = match date {
+                Some(date) => {
+                    println!(
+                        "List activities for {}",
+                        NaiveDate::parse_from_str(&date, "%Y-%m-%d")
+                            .unwrap()
+                            .format("%Y-%m-%d, %A")
+                    );
+                    moco_client.get_activities(date.clone(), date, None, None)
+                }
+                None => moco_client.get_activities(
                     from.format("%Y-%m-%d").to_string(),
                     to.format("%Y-%m-%d").to_string(),
                     None,
                     None,
-                )
-                .await?;
+                ),
+            }
+            .await?;
 
             let mut list: Vec<Vec<String>> = activities
                 .iter()
                 .map(|activity| {
                     vec![
                         activity.date.clone(),
+                        NaiveDate::parse_from_str(&activity.date, "%Y-%m-%d")
+                            .unwrap()
+                            .format("%A")
+                            .to_string(),
                         activity.hours.to_string(),
                         activity.customer.name.clone(),
                         activity.task.name.clone(),
@@ -98,6 +117,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 0,
                 vec![
                     "Date".to_string(),
+                    "Day".to_string(),
                     "Duration (hours)".to_string(),
                     "Customer".to_string(),
                     "Task".to_string(),
@@ -106,6 +126,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
             );
 
             list.push(vec![
+                "-".to_string(),
                 "-".to_string(),
                 activities
                     .iter()

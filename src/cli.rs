@@ -32,6 +32,9 @@ pub enum Commands {
 
         #[clap(long)]
         month: bool,
+
+        #[clap(long)]
+        date: Option<String>,
     },
     #[clap(about = "Create new activity", long_about = None)]
     New {
