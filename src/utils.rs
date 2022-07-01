@@ -46,7 +46,7 @@ pub fn render_table(list: Vec<Vec<String>>) {
 pub fn render_list_select<T>(
     list: &[T],
     headline: Vec<&str>,
-    promt: &str,
+    prompt: &str,
     linenderer: &dyn Fn((usize, &T)) -> Vec<String>,
 ) -> Result<usize, Box<dyn Error>> {
     loop {
@@ -55,7 +55,7 @@ pub fn render_list_select<T>(
         rendered_list.insert(0, headline.iter().map(|x| x.to_string()).collect());
         render_table(rendered_list);
 
-        print!("{}", promt);
+        print!("{}", prompt);
         std::io::stdout().flush()?;
 
         let index_input = read_line().map(|x| x.parse::<usize>().ok()).ok().flatten();
@@ -65,7 +65,7 @@ pub fn render_list_select<T>(
                 return Ok(index);
             }
         }
-        println!("Index Invallid")
+        println!("Index Invalid")
     }
 }
 
@@ -187,7 +187,7 @@ async fn activity_select(
                 "Task",
                 "Description",
             ],
-            "Choose your Acitivity: ",
+            "Choose your Activity: ",
             &(|(index, activity)| {
                 vec![
                     index.to_string(),
@@ -252,5 +252,5 @@ pub async fn activity_select_date(
     from: String,
     to: String,
 ) -> Result<Activity, Box<dyn Error>> {
-    activity_select(&moco_client, activity, from, to).await
+    activity_select(moco_client, activity, from, to).await
 }
