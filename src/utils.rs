@@ -244,7 +244,7 @@ pub async fn prompt_activity_select(
     activity_select(moco_client, activity, from, to).await
 }
 
-pub async fn activity_select_today(
+pub async fn prompt_activity_select_today(
     moco_client: &MocoClient,
     activity: Option<i64>,
 ) -> Result<Activity, Box<dyn Error>> {
@@ -255,7 +255,7 @@ pub async fn activity_select_today(
     activity_select(moco_client, activity, now.clone(), now).await
 }
 
-pub async fn activity_select_date(
+pub async fn prompt_activity_select_date(
     moco_client: &MocoClient,
     activity: Option<i64>,
     from: String,
