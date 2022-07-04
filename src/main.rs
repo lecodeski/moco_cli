@@ -1,9 +1,7 @@
 use std::{cell::RefCell, error::Error, io::Write, sync::Arc, vec};
 
 use chrono::{NaiveDate, Utc};
-use log::trace;
 
-use jira_tempo::client::JiraTempoClient;
 use utils::{prompt_activity_select, prompt_task_select, render_table};
 
 use crate::moco::model::{ControlActivityTimer, CreateActivity, DeleteActivity, GetActivity};
@@ -15,11 +13,13 @@ use crate::{
 
 mod cli;
 mod config;
-mod jira_tempo;
 mod moco;
 mod tempo;
 
 mod utils;
+
+const FORMAT_DATE: &str = "%Y-%m-%d";
+const FORMAT_DATE_DAY: &str = "%Y-%m-%d, %A";
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
@@ -32,21 +32,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
     log_builder.init();
     let config = Arc::new(RefCell::new(config::init()?));
     let moco_client = MocoClient::new(&config);
-    let tempo_client = JiraTempoClient::new(&config);
 
     match args.command {
         cli::Commands::Login { system } => match system {
-            cli::Login::Jira => {
-                println!("Jira Tempo Login");
-
-                let api_key = ask_question("Enter your personal API key: ", &mandatory_validator)?;
-                config.borrow_mut().jira_tempo_api_key = Some(api_key);
-
-                tempo_client.test_login().await?;
-
-                config.borrow_mut().write_config()?;
-                println!("🤩 Logged in 🤩")
-            }
             cli::Login::Moco => {
                 println!("Moco Login");
 
@@ -67,23 +55,27 @@ async fn main() -> Result<(), Box<dyn Error>> {
             }
         },
         cli::Commands::List {
-            today,
             week,
             month,
+            backward,
             date,
         } => {
             let activities = match date {
                 Some(date) => {
-                    println!("List activities for {}", date.format("%Y-%m-%d, %A"));
-                    let date_string = date.format("%Y-%m-%d").to_string();
+                    println!("List activities for {}", date.format(FORMAT_DATE_DAY));
+                    let date_string = date.format(FORMAT_DATE).to_string();
                     moco_client.get_activities(date_string.clone(), date_string, None, None)
                 }
                 None => {
-                    let (from, to) =
-                        utils::select_from_to_date(today, week || !today && !month, month);
+                    let (from, to) = utils::select_from_to_date(week, month, backward);
+                    println!(
+                        "List activities from {} to {}",
+                        from.format(FORMAT_DATE_DAY),
+                        to.format(FORMAT_DATE_DAY)
+                    );
                     moco_client.get_activities(
-                        from.format("%Y-%m-%d").to_string(),
-                        to.format("%Y-%m-%d").to_string(),
+                        from.format(FORMAT_DATE).to_string(),
+                        to.format(FORMAT_DATE).to_string(),
                         None,
                         None,
                     )
@@ -96,7 +88,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 .map(|activity| {
                     vec![
                         activity.date.clone(),
-                        NaiveDate::parse_from_str(&activity.date, "%Y-%m-%d")
+                        NaiveDate::parse_from_str(&activity.date, FORMAT_DATE)
                             .unwrap()
                             .format("%A")
                             .to_string(),
@@ -171,7 +163,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
             moco_client
                 .create_activity(&CreateActivity {
-                    date: date.format("%Y-%m-%d").to_string(),
+                    date: date.format(FORMAT_DATE).to_string(),
                     project_id: project.id,
                     task_id: task.id,
                     hours: Some(hours),
@@ -182,7 +174,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         cli::Commands::Edit { activity } => {
             let activity = prompt_activity_select(&moco_client, activity).await?;
 
-            let now = Utc::now().format("%Y-%m-%d").to_string();
+            let now = Utc::now().format(FORMAT_DATE).to_string();
 
             print!("New date (YYYY-MM-DD) - Default '{}': ", activity.date);
             std::io::stdout().flush()?;
@@ -226,8 +218,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
         cli::Commands::Rm { activity, date } => {
             let activity = match date {
                 Some(date) => {
-                    println!("Delete activities for {}", date.format("%Y-%m-%d, %A"));
-                    let date_string = date.format("%Y-%m-%d").to_string();
+                    println!("Delete activities for {}", date.format(FORMAT_DATE_DAY));
+                    let date_string = date.format(FORMAT_DATE).to_string();
                     prompt_activity_select_date(
                         &moco_client,
                         activity,
@@ -257,7 +249,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                     .await?;
             }
             cli::Timer::Stop => {
-                let now = Utc::now().format("%Y-%m-%d").to_string();
+                let now = Utc::now().format(FORMAT_DATE).to_string();
                 let from = now.clone();
                 let to = now.clone();
 
@@ -278,138 +270,6 @@ async fn main() -> Result<(), Box<dyn Error>> {
                     println!("Activity duration: {} hours", a.hours);
                 } else {
                     println!("Could not stop timer since it was not on");
-                }
-            }
-        },
-        cli::Commands::Sync {
-            system,
-            today,
-            week,
-            month,
-            dry_run,
-            project,
-            task,
-        } => match system {
-            cli::Sync::Jira => {
-                let (from, to) = utils::select_from_to_date(today, week, month);
-
-                let worklogs = tempo_client
-                    .get_worklogs(
-                        from.format("%Y-%m-%d").to_string(),
-                        to.format("%Y-%m-%d").to_string(),
-                    )
-                    .await?;
-
-                trace!("Tempo: {:#?}", worklogs);
-
-                let (project, task) = prompt_task_select(&moco_client, project, task).await?;
-
-                let activities = moco_client
-                    .get_activities(
-                        from.format("%Y-%m-%d").to_string(),
-                        to.format("%Y-%m-%d").to_string(),
-                        Some(task.id.to_string()),
-                        Some("mococli".to_string()),
-                    )
-                    .await?;
-
-                let worklogs: Vec<Result<CreateActivity, Box<dyn Error>>> = worklogs
-                    .results
-                    .iter()
-                    .filter(|worklog| {
-                        !activities.iter().any(|activity| {
-                            activity
-                                .remote_id
-                                .as_ref()
-                                .and_then(|x| x.parse::<i64>().ok())
-                                .unwrap_or(0)
-                                == worklog.jira_worklog_id
-                        })
-                    })
-                    .map(|worklog| -> Result<CreateActivity, Box<dyn Error>> {
-                        Ok(CreateActivity {
-                            remote_service: Some("jira".to_string()),
-                            seconds: Some(worklog.time_spent_seconds),
-                            date: worklog.start_date.to_string(),
-                            tag: Some("mococli".to_string()),
-                            project_id: project.id,
-                            task_id: task.id,
-                            description: worklog.description.clone(),
-                            remote_id: Some(worklog.jira_worklog_id.to_string()),
-                            ..Default::default()
-                        })
-                    })
-                    .collect();
-
-                let output_list = vec![
-                    "Date",
-                    "Duration (hours)",
-                    "Description",
-                    "Project ID",
-                    "Task ID",
-                ];
-
-                let mut output_list = vec![output_list.iter().map(|str| str.to_string()).collect()];
-
-                for worklog in &worklogs {
-                    if let Ok(worklog) = &worklog {
-                        output_list.push(vec![
-                            worklog.date.clone(),
-                            worklog
-                                .seconds
-                                .map(|seconds| seconds as f64 / 60.0 / 60.0)
-                                .unwrap_or(0.0)
-                                .to_string(),
-                            worklog.description.clone(),
-                            worklog.project_id.to_string(),
-                            worklog.task_id.to_string(),
-                        ])
-                    }
-                    if let Err(err) = &worklog {
-                        output_list.push(vec![
-                            "Error".to_string(),
-                            format!("{:?}", err),
-                            "".to_string(),
-                            "".to_string(),
-                            "".to_string(),
-                        ])
-                    }
-                }
-
-                if dry_run {
-                    println!("Planed sync: ");
-                    println!(
-                        "From {} to {}",
-                        from.format("%d.%m.%y"),
-                        to.format("%d.%m.%y")
-                    );
-                    if output_list.len() == 1 {
-                        print!("Nothing, everything seems to be Synced!")
-                    } else {
-                        render_table(output_list);
-                    }
-                    println!();
-                } else {
-                    println!("Sync plan: ");
-                    println!(
-                        "From {} to {}",
-                        from.format("%d.%m.%y"),
-                        to.format("%d.%m.%y")
-                    );
-                    if output_list.len() == 1 {
-                        print!("Nothing, everything seems to be Synced!")
-                    } else {
-                        render_table(output_list);
-                    }
-
-                    println!();
-
-                    for worklog in worklogs {
-                        if let Ok(worklog) = &worklog {
-                            moco_client.create_activity(worklog).await?;
-                        }
-                    }
-                    println!("Synced!");
                 }
             }
         },

@@ -26,13 +26,13 @@ pub enum Commands {
     #[clap(about = "List activities", long_about = None)]
     List {
         #[clap(long)]
-        today: bool,
-
-        #[clap(long)]
         week: bool,
 
         #[clap(long)]
         month: bool,
+
+        #[clap(long)]
+        backward: Option<i64>,
 
         #[clap(long)]
         date: Option<NaiveDate>,
@@ -72,44 +72,15 @@ pub enum Commands {
         #[clap(long)]
         activity: Option<i64>,
     },
-    #[clap(about = "Sync missing Jira Tempo logs to Moco", long_about = None)]
-    Sync {
-        #[clap(arg_enum, default_value_t = Sync::Jira)]
-        system: Sync,
-
-        #[clap(long)]
-        today: bool,
-
-        #[clap(long)]
-        week: bool,
-
-        #[clap(long)]
-        month: bool,
-
-        #[clap(long)]
-        project: Option<i64>,
-
-        #[clap(long)]
-        task: Option<i64>,
-
-        #[clap(long)]
-        dry_run: bool,
-    },
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ArgEnum)]
 pub enum Login {
     Moco,
-    Jira,
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ArgEnum)]
 pub enum Timer {
     Start,
     Stop,
-}
-
-#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ArgEnum)]
-pub enum Sync {
-    Jira,
 }

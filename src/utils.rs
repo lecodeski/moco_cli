@@ -3,7 +3,11 @@ use std::{error::Error, io::Write, vec};
 use crate::moco::client::MocoClient;
 use crate::moco::model::{Activity, Project, ProjectTask};
 
-use chrono::{NaiveDate, Utc};
+use crate::FORMAT_DATE;
+use chrono::{Duration, NaiveDate, Utc};
+use chronoutil::shift_months;
+use now::DateTimeNow;
+use num_traits::cast::ToPrimitive;
 
 pub fn read_line() -> Result<String, Box<dyn Error>> {
     let mut input = String::new();
@@ -17,7 +21,7 @@ pub fn read_line_date() -> NaiveDate {
     if result.is_empty() {
         Utc::now().naive_utc().date()
     } else {
-        NaiveDate::parse_from_str(&result, "%Y-%m-%d").unwrap()
+        NaiveDate::parse_from_str(&result, FORMAT_DATE).unwrap()
     }
 }
 
@@ -79,30 +83,22 @@ pub fn render_list_select<T>(
 }
 
 pub fn select_from_to_date(
-    today: bool,
     week: bool,
     month: bool,
+    backward: Option<i64>,
 ) -> (chrono::DateTime<Utc>, chrono::DateTime<Utc>) {
-    use now::DateTimeNow;
-
     let now = Utc::now();
-    let mut from = if today { Some(now) } else { None };
-    let mut to = if today { Some(now) } else { None };
-    from = if week {
-        Some(now.beginning_of_week())
+    let backward = backward.unwrap_or(0_i64);
+    if week {
+        let then = now.checked_sub_signed(Duration::weeks(backward)).unwrap();
+        (then.beginning_of_week(), then.end_of_week())
+    } else if month {
+        let then = shift_months(now, -backward.to_i32().unwrap());
+        (then.beginning_of_month(), then.end_of_month())
     } else {
-        from
-    };
-    to = if week { Some(now.end_of_week()) } else { to };
-    from = if month {
-        Some(now.beginning_of_month())
-    } else {
-        from
-    };
-    to = if month { Some(now.end_of_month()) } else { to };
-    let from = from.unwrap_or(now);
-    let to = to.unwrap_or(now);
-    (from, to)
+        let then = now.checked_sub_signed(Duration::days(backward)).unwrap();
+        (then, then)
+    }
 }
 
 pub fn ask_question(
@@ -223,7 +219,7 @@ pub async fn prompt_activity_select(
     moco_client: &MocoClient,
     activity: Option<i64>,
 ) -> Result<Activity, Box<dyn Error>> {
-    let now = Utc::now().format("%Y-%m-%d").to_string();
+    let now = Utc::now().format(FORMAT_DATE).to_string();
 
     print!("List activities from (YYYY-MM-DD) - Default 'today': ");
     std::io::stdout().flush()?;
@@ -248,7 +244,7 @@ pub async fn prompt_activity_select_today(
     moco_client: &MocoClient,
     activity: Option<i64>,
 ) -> Result<Activity, Box<dyn Error>> {
-    let now = Utc::now().format("%Y-%m-%d").to_string();
+    let now = Utc::now().format(FORMAT_DATE).to_string();
 
     println!("List activities for today: ");
 
