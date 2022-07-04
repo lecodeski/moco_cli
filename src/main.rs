@@ -74,13 +74,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
         } => {
             let activities = match date {
                 Some(date) => {
-                    println!(
-                        "List activities for {}",
-                        NaiveDate::parse_from_str(&date, "%Y-%m-%d")
-                            .unwrap()
-                            .format("%Y-%m-%d, %A")
-                    );
-                    moco_client.get_activities(date.clone(), date, None, None)
+                    println!("List activities for {}", date.format("%Y-%m-%d, %A"));
+                    let date_string = date.format("%Y-%m-%d").to_string();
+                    moco_client.get_activities(date_string.clone(), date_string, None, None)
                 }
                 None => {
                     let (from, to) =
@@ -147,8 +143,6 @@ async fn main() -> Result<(), Box<dyn Error>> {
             hours,
             date,
         } => {
-            let now = Utc::now().format("%Y-%m-%d").to_string();
-
             let (project, task) = prompt_task_select(&moco_client, project, task).await?;
 
             let date = if let Some(d) = date {
@@ -157,12 +151,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 print!("Date (YYYY-MM-DD) - Default 'today': ");
                 std::io::stdout().flush()?;
 
-                let date = utils::read_line()?;
-                if date.is_empty() {
-                    now
-                } else {
-                    date
-                }
+                utils::read_line_date()
             };
 
             let hours = if let Some(h) = hours {
@@ -182,7 +171,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
             moco_client
                 .create_activity(&CreateActivity {
-                    date,
+                    date: date.format("%Y-%m-%d").to_string(),
                     project_id: project.id,
                     task_id: task.id,
                     hours: Some(hours),
@@ -237,13 +226,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
         cli::Commands::Rm { activity, date } => {
             let activity = match date {
                 Some(date) => {
-                    println!(
-                        "Delete activities for {}",
-                        NaiveDate::parse_from_str(&date, "%Y-%m-%d")
-                            .unwrap()
-                            .format("%Y-%m-%d, %A")
-                    );
-                    activity_select_date(&moco_client, activity, date.clone(), date).await
+                    println!("Delete activities for {}", date.format("%Y-%m-%d, %A"));
+                    let date_string = date.format("%Y-%m-%d").to_string();
+                    activity_select_date(&moco_client, activity, date_string.clone(), date_string)
+                        .await
                 }
                 None => prompt_activity_select(&moco_client, activity).await,
             }?;

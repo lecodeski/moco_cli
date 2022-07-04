@@ -1,3 +1,4 @@
+use chrono::NaiveDate;
 use clap::{ArgEnum, Parser, Subcommand};
 
 pub fn init() -> Cli {
@@ -34,7 +35,7 @@ pub enum Commands {
         month: bool,
 
         #[clap(long)]
-        date: Option<String>,
+        date: Option<NaiveDate>,
     },
     #[clap(about = "Create new activity", long_about = None)]
     New {
@@ -48,7 +49,7 @@ pub enum Commands {
         hours: Option<f64>,
 
         #[clap(long)]
-        date: Option<String>,
+        date: Option<NaiveDate>,
     },
     #[clap(about = "Edit activity", long_about = None)]
     Edit {
@@ -61,7 +62,7 @@ pub enum Commands {
         activity: Option<i64>,
 
         #[clap(long)]
-        date: Option<String>,
+        date: Option<NaiveDate>,
     },
     #[clap(about = "Start/Stop activity timer", long_about = None)]
     Timer {

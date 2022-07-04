@@ -3,13 +3,22 @@ use std::{error::Error, io::Write, vec};
 use crate::moco::client::MocoClient;
 use crate::moco::model::{Activity, Project, ProjectTask};
 
-use chrono::Utc;
+use chrono::{NaiveDate, Utc};
 
 pub fn read_line() -> Result<String, Box<dyn Error>> {
     let mut input = String::new();
     std::io::stdin().read_line(&mut input)?;
     input.remove(input.len() - 1);
     Ok(input)
+}
+
+pub fn read_line_date() -> NaiveDate {
+    let result = read_line().unwrap();
+    if result.is_empty() {
+        Utc::now().naive_utc().date()
+    } else {
+        NaiveDate::parse_from_str(&result, "%Y-%m-%d").unwrap()
+    }
 }
 
 pub fn render_table(list: Vec<Vec<String>>) {
