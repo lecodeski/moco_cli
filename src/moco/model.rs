@@ -171,3 +171,28 @@ pub struct ProjectTask {
     pub active: bool,
     pub billable: bool,
 }
+
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct PerformanceReport {
+    pub annually: PerformanceReportAnnually,
+    pub monthly: Vec<PerformanceReportMonthly>,
+}
+
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct PerformanceReportAnnually {
+    pub year: i64,
+    pub employment_hours: f64,
+    pub target_hours: f64,
+    pub hours_tracked_total: f64,
+    pub variation: f64,
+    pub variation_until_today: f64,
+}
+
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct PerformanceReportMonthly {
+    pub year: i64,
+    pub month: i64,
+    pub target_hours: f64,
+    pub hours_tracked_total: f64,
+    pub variation: f64,
+}

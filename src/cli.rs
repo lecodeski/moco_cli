@@ -72,6 +72,11 @@ pub enum Commands {
         #[clap(long)]
         activity: Option<i64>,
     },
+    #[clap(about = "Show your current overtime report", long_about = None)]
+    Overtime {
+        #[clap(long)]
+        monthly: bool,
+    },
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ArgEnum)]

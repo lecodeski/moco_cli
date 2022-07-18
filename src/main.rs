@@ -40,9 +40,12 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
                 let moco_company = ask_question("Enter Moco company name: ", &mandatory_validator)?;
                 let api_key = ask_question("Enter your personal API key: ", &mandatory_validator)?;
+                let bot_api_key =
+                    ask_question("Enter the Moco Bot API key: ", &mandatory_validator)?;
 
                 config.borrow_mut().moco_company = Some(moco_company);
                 config.borrow_mut().moco_api_key = Some(api_key);
+                config.borrow_mut().moco_bot_api_key = Some(bot_api_key);
 
                 let firstname = ask_question("Enter firstname: ", &mandatory_validator)?;
                 let lastname = ask_question("Enter lastname:  ", &mandatory_validator)?;
@@ -273,6 +276,60 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 }
             }
         },
+        cli::Commands::Overtime { monthly } => {
+            let overtime = moco_client.get_user_performance_report().await?;
+
+            if monthly {
+                println!(
+                    "Your monthly overtime report for {}",
+                    overtime.annually.year.to_string()
+                );
+
+                let mut list: Vec<Vec<String>> = overtime
+                    .monthly
+                    .iter()
+                    .map(|month| {
+                        vec![
+                            month.month.to_string(),
+                            month.variation.to_string(),
+                            month.target_hours.to_string(),
+                            month.hours_tracked_total.to_string(),
+                        ]
+                    })
+                    .collect();
+
+                list.insert(
+                    0,
+                    vec![
+                        "Month".to_string(),
+                        "Overtime".to_string(),
+                        "Target Hours".to_string(),
+                        "Tracked Hours".to_string(),
+                    ],
+                );
+
+                list.push(vec![
+                    "-----".to_string(),
+                    "--------".to_string(),
+                    "------------".to_string(),
+                    "-------------".to_string(),
+                ]);
+
+                list.push(vec![
+                    "==>".to_string(),
+                    overtime.annually.variation.to_string(),
+                    overtime.annually.target_hours.to_string(),
+                    overtime.annually.hours_tracked_total.to_string(),
+                ]);
+
+                render_table(list);
+            } else {
+                println!(
+                    "Your current overtime until end of today: {}",
+                    overtime.annually.variation_until_today
+                );
+            }
+        }
     }
 
     Ok(())

@@ -3,14 +3,8 @@ use std::{cell::RefCell, error::Error, sync::Arc};
 use reqwest::Client;
 
 use crate::moco::model::{
-    Activity,
-    ControlActivityTimer,
-    CreateActivity,
-    DeleteActivity,
-    EditActivity,
-    Employment,
-    GetActivity,
-    Projects,
+    Activity, ControlActivityTimer, CreateActivity, DeleteActivity, EditActivity, Employment,
+    GetActivity, PerformanceReport, Projects,
 };
 
 use crate::config::AppConfig;
@@ -209,6 +203,27 @@ impl MocoClient {
                 .json::<Projects>()
                 .await?),
             (_, _) => Err(Box::new(MocoClientError::NotLoggedIn)),
+        }
+    }
+
+    pub async fn get_user_performance_report(&self) -> Result<PerformanceReport, Box<dyn Error>> {
+        let config = &self.config.borrow();
+        match (
+            config.moco_bot_api_key.as_ref(),
+            config.moco_company.as_ref(),
+            config.moco_user_id.as_ref(),
+        ) {
+            (Some(bot_api_key), Some(company), Some(user_id)) => Ok(self
+                .client
+                .get(format!(
+                    "https://{company}.mocoapp.com/api/v1/users/{user_id}/performance_report"
+                ))
+                .header("Authorization", format!("Token token={}", bot_api_key))
+                .send()
+                .await?
+                .json::<PerformanceReport>()
+                .await?),
+            (_, _, _) => Err(Box::new(MocoClientError::NotLoggedIn)),
         }
     }
 }

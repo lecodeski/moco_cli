@@ -9,8 +9,8 @@ use std::{
 pub struct AppConfig {
     pub moco_company: Option<String>,
     pub moco_api_key: Option<String>,
+    pub moco_bot_api_key: Option<String>,
     pub moco_user_id: Option<i64>,
-    pub jira_tempo_api_key: Option<String>,
 }
 
 fn get_config_path() -> Option<std::path::PathBuf> {
