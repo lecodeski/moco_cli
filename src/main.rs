@@ -72,7 +72,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 None => {
                     let (from, to) = utils::select_from_to_date(week, month, backward);
                     println!(
-                        "List activities from {} to {}",
+                        "List activities from {} – {}",
                         from.format(FORMAT_DATE_DAY),
                         to.format(FORMAT_DATE_DAY)
                     );
