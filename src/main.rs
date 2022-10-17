@@ -14,7 +14,6 @@ use crate::{
 mod cli;
 mod config;
 mod moco;
-mod tempo;
 
 mod utils;
 
