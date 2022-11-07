@@ -291,7 +291,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                     .map(|month| {
                         vec![
                             format!("{:0>2}", month.month.to_string())
-                                + " - "
+                                + ": "
                                 + Month::from_i64(month.month).unwrap().name(),
                             month.variation.to_string(),
                             month.target_hours.to_string(),
@@ -311,7 +311,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 );
 
                 list.push(vec![
-                    "--------------".to_string(),
+                    "-------------".to_string(),
                     "--------".to_string(),
                     "------------".to_string(),
                     "-------------".to_string(),
