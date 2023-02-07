@@ -218,6 +218,28 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 })
                 .await?;
         }
+        cli::Commands::EditSimple { activity } => {
+            let activity = prompt_activity_select_today(&moco_client, activity).await?;
+
+            print!("New duration (hours) - Default '{}': ", activity.hours);
+            std::io::stdout().flush()?;
+
+            let mut hours = utils::read_line()?;
+            if hours.is_empty() {
+                hours = activity.hours.to_string()
+            }
+
+            moco_client
+                .edit_activity(&EditActivity {
+                    activity_id: activity.id,
+                    project_id: activity.project.id,
+                    task_id: activity.task.id,
+                    date: activity.date,
+                    description: activity.description.unwrap(),
+                    hours,
+                })
+                .await?;
+        }
         cli::Commands::Rm { activity, date } => {
             let activity = match date {
                 Some(date) => {

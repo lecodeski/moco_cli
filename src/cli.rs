@@ -56,6 +56,10 @@ pub enum Commands {
         #[clap(long)]
         activity: Option<i64>,
     },
+    EditSimple {
+        #[clap(long)]
+        activity: Option<i64>,
+    },
     #[clap(about = "Delete activity", long_about = None)]
     Rm {
         #[clap(long)]
