@@ -218,8 +218,15 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 })
                 .await?;
         }
-        cli::Commands::EditSimple { activity } => {
-            let activity = prompt_activity_select_today(&moco_client, activity).await?;
+        cli::Commands::EditDate { activity, date } => {
+            let date_string = date.format(FORMAT_DATE).to_string();
+            let activity = prompt_activity_select_date(
+                &moco_client,
+                activity,
+                date_string.clone(),
+                date_string,
+            )
+            .await?;
 
             print!("New duration (hours) - Default '{}': ", activity.hours);
             std::io::stdout().flush()?;

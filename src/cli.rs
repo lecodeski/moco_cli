@@ -56,7 +56,10 @@ pub enum Commands {
         #[clap(long)]
         activity: Option<i64>,
     },
-    EditSimple {
+    EditDate {
+        #[clap(long)]
+        date: NaiveDate,
+
         #[clap(long)]
         activity: Option<i64>,
     },
