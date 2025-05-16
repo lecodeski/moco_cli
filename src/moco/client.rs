@@ -195,7 +195,7 @@ impl MocoClient {
             (Some(api_key), Some(company)) => Ok(self
                 .client
                 .get(format!(
-                    "https://{company}.mocoapp.com/api/v1/projects/assigned"
+                    "https://{company}.mocoapp.com/api/v1/projects/assigned?active=true"
                 ))
                 .header("Authorization", format!("Token token={}", api_key))
                 .send()

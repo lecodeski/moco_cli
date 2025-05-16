@@ -36,7 +36,7 @@ pub fn render_table(list: Vec<Vec<String>>) {
         for (column_index, column_content) in row.iter().enumerate() {
             if list_elem_max_length
                 .get(column_index)
-                .expect("Input list does not contain same column count")
+                .expect("Input list does not contain the same column count")
                 < &column_content.len()
             {
                 list_elem_max_length[column_index] = column_content.len();
@@ -128,7 +128,7 @@ pub fn mandatory_validator(input: &str) -> Option<String> {
 pub async fn prompt_task_select(
     moco_client: &MocoClient,
     project: Option<i64>,
-    task: Option<i64>,
+    task_id: Option<i64>,
 ) -> Result<(Project, ProjectTask), Box<dyn Error>> {
     let projects = moco_client.get_assigned_projects().await?;
     let project = projects.iter().find(|p| p.id == project.unwrap_or(-1));
@@ -153,18 +153,19 @@ pub async fn prompt_task_select(
         &projects[project_index]
     };
 
-    let task = project.tasks.iter().find(|t| t.id == task.unwrap_or(-1));
+    let active_tasks: Vec<&ProjectTask> = project.tasks.iter().filter(|t| t.active).collect();
+    let selected_task = active_tasks.iter().find(|t| t.id == task_id.unwrap_or(-1));
 
-    let task = if let Some(t) = task {
+    let task = if let Some(t) = selected_task {
         t
     } else {
         let task_index = render_list_select(
-            &project.tasks,
+            &active_tasks,
             vec!["Index", "Task", "Task ID"],
             "Chose your Task: ",
             &(|(index, task)| vec![index.to_string(), task.name.clone(), task.id.to_string()]),
         )?;
-        &project.tasks[task_index]
+        active_tasks[task_index]
     };
 
     Ok((project.clone(), task.clone()))
