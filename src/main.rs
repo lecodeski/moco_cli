@@ -111,7 +111,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 vec![
                     "Date".to_string(),
                     "Day".to_string(),
-                    "Duration (hours)".to_string(),
+                    "Hours".to_string(),
                     "Customer".to_string(),
                     "Task".to_string(),
                     "Description".to_string(),
@@ -137,6 +137,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
             task,
             hours,
             date,
+            description,
         } => {
             let (project, task) = prompt_task_select(&moco_client, project, task).await?;
 
@@ -164,12 +165,21 @@ async fn main() -> Result<(), Box<dyn Error>> {
                     .unwrap_or_else(|| answer.parse::<f64>().unwrap())
             };
 
+            let description = if let Some(d) = description {
+                d
+            } else {
+                print!("Description: ");
+                std::io::stdout().flush()?;
+                utils::read_line()?
+            };
+
             moco_client
                 .create_activity(&CreateActivity {
                     date: date.format(FORMAT_DATE).to_string(),
                     project_id: project.id,
                     task_id: task.id,
                     hours: Some(hours),
+                    description,
                     ..Default::default()
                 })
                 .await?;

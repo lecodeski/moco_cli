@@ -50,6 +50,9 @@ pub enum Commands {
 
         #[clap(long)]
         date: Option<NaiveDate>,
+
+        #[clap(long)]
+        description: Option<String>,
     },
     #[clap(about = "Edit activity", long_about = None)]
     Edit {
