@@ -6,7 +6,7 @@ use num_traits::FromPrimitive;
 use utils::{prompt_activity_select, prompt_task_select, render_table};
 
 use crate::moco::model::{ControlActivityTimer, CreateActivity, DeleteActivity, GetActivity};
-use crate::utils::{prompt_activity_select_date, prompt_activity_select_today};
+use crate::utils::{activity_select, prompt_activity_select_today};
 use crate::{
     moco::{client::MocoClient, model::EditActivity},
     utils::{ask_question, mandatory_validator},
@@ -189,13 +189,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 Some(date) => {
                     println!("Edit activities for {}", date.format(FORMAT_DATE_DAY));
                     let date_string = date.format(FORMAT_DATE).to_string();
-                    prompt_activity_select_date(
-                        &moco_client,
-                        activity,
-                        date_string.clone(),
-                        date_string,
-                    )
-                    .await
+                    activity_select(&moco_client, activity, date_string.clone(), date_string).await
                 }
                 None => prompt_activity_select(&moco_client, activity).await,
             }?;
@@ -249,13 +243,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 Some(date) => {
                     println!("Delete activities for {}", date.format(FORMAT_DATE_DAY));
                     let date_string = date.format(FORMAT_DATE).to_string();
-                    prompt_activity_select_date(
-                        &moco_client,
-                        activity,
-                        date_string.clone(),
-                        date_string,
-                    )
-                    .await
+                    activity_select(&moco_client, activity, date_string.clone(), date_string).await
                 }
                 None => prompt_activity_select(&moco_client, activity).await,
             }?;
