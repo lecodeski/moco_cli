@@ -184,8 +184,21 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 })
                 .await?;
         }
-        cli::Commands::Edit { activity } => {
-            let activity = prompt_activity_select(&moco_client, activity).await?;
+        cli::Commands::Edit { activity, date } => {
+            let activity = match date {
+                Some(date) => {
+                    println!("Edit activities for {}", date.format(FORMAT_DATE_DAY));
+                    let date_string = date.format(FORMAT_DATE).to_string();
+                    prompt_activity_select_date(
+                        &moco_client,
+                        activity,
+                        date_string.clone(),
+                        date_string,
+                    )
+                    .await
+                }
+                None => prompt_activity_select(&moco_client, activity).await,
+            }?;
 
             let now = Utc::now().format(FORMAT_DATE).to_string();
 
@@ -205,7 +218,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 hours = activity.hours.to_string()
             }
 
-            print!("New description - Default 'current': ");
+            print!(
+                "New description - Default '{}': ",
+                activity.description.as_deref().unwrap_or("")
+            );
             std::io::stdout().flush()?;
 
             let mut description = utils::read_line()?;
@@ -224,35 +240,6 @@ async fn main() -> Result<(), Box<dyn Error>> {
                     task_id: activity.task.id,
                     date,
                     description,
-                    hours,
-                })
-                .await?;
-        }
-        cli::Commands::EditDate { activity, date } => {
-            let date_string = date.format(FORMAT_DATE).to_string();
-            let activity = prompt_activity_select_date(
-                &moco_client,
-                activity,
-                date_string.clone(),
-                date_string,
-            )
-            .await?;
-
-            print!("New duration (hours) - Default '{}': ", activity.hours);
-            std::io::stdout().flush()?;
-
-            let mut hours = utils::read_line()?;
-            if hours.is_empty() {
-                hours = activity.hours.to_string()
-            }
-
-            moco_client
-                .edit_activity(&EditActivity {
-                    activity_id: activity.id,
-                    project_id: activity.project.id,
-                    task_id: activity.task.id,
-                    date: activity.date,
-                    description: activity.description.unwrap(),
                     hours,
                 })
                 .await?;

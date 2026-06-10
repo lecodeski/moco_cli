@@ -57,11 +57,7 @@ pub enum Commands {
     #[clap(about = "Edit activity", long_about = None)]
     Edit {
         #[clap(long)]
-        activity: Option<i64>,
-    },
-    EditDate {
-        #[clap(long)]
-        date: NaiveDate,
+        date: Option<NaiveDate>,
 
         #[clap(long)]
         activity: Option<i64>,
