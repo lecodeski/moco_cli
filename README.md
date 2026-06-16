@@ -1,25 +1,27 @@
-# MOCO CLI (`mococli`)
+# ⏱️ MOCO CLI (`mococli`)
 
-A small command-line tool to track your working time with [MOCO](https://www.mocoapp.com/)
-right from your terminal. It talks to the MOCO REST API to list, create, edit and
-delete activities, control activity timers and show your overtime report.
+A small but mighty command-line tool to track your working time with
+[MOCO](https://www.mocoapp.com/) right from your terminal — because alt-tabbing to a browser
+just to log "yep, I worked today" is so last sprint. 🦀 It talks to the MOCO REST API to list,
+create, edit and delete activities, control activity timers and show your overtime report.
 
-## Overview
+## 🗺️ Overview
 
-`mococli` is a Rust binary that wraps the MOCO API. After a one-time login it stores your
-credentials locally and lets you manage time-tracking activities without leaving the shell.
+`mococli` is a Rust binary that wraps the MOCO API. After a one-time login, it tucks your
+credentials away locally and lets you manage time-tracking activities without ever leaving the
+comfort of your shell. Your terminal, your rules. 😎
 
 Features:
 
-- **Login** to a MOCO workspace and persist credentials locally.
-- **List** activities for a day, week or month (with totals).
-- **New** activity creation (interactive or via flags), optionally starting a timer.
-- **Edit** an existing activity (date, hours, description).
-- **Rm** (delete) an activity.
-- **Timer** start/stop for activities.
-- **Overtime** report (current overtime, or a monthly breakdown).
+- 🔐 **Login** to a MOCO workspace and persist credentials locally.
+- 📋 **List** activities for a day, week or month (with totals, so you don't have to do mental math).
+- ➕ **New** activity creation (interactive or via flags), optionally starting a timer.
+- ✏️ **Edit** an existing activity (date, hours, description).
+- 🗑️ **Rm** (delete) an activity — for those "that never happened" moments.
+- ⏯️ **Timer** start/stop for activities.
+- 📊 **Overtime** report (current overtime, or a monthly breakdown — brace yourself).
 
-## Requirements
+## 📦 Requirements
 
 - [Rust](https://www.rust-lang.org/tools/install) toolchain (stable) with Cargo. The crate
   uses Rust **edition 2021**.
@@ -31,9 +33,9 @@ Features:
     - the company/subdomain name used to access MOCO.
 
 A [dev container](.devcontainer/devcontainer.json) configuration is provided for a
-ready-to-use Rust development environment.
+ready-to-use Rust development environment — zero "works on my machine" excuses. 🐳
 
-## Setup & Run
+## 🚀 Setup & Run
 
 Build and run from source with Cargo:
 
@@ -45,7 +47,7 @@ cargo build --release
 ./target/release/mococli --help
 ```
 
-During development you can run directly via Cargo:
+During development, you can run directly via Cargo:
 
 ```sh
 cargo run -- <command> [options]
@@ -57,7 +59,7 @@ Install it onto your `PATH`:
 cargo install --path .
 ```
 
-### First-time login
+### 👋 First-time login
 
 ```sh
 mococli login moco
@@ -70,9 +72,9 @@ You will be prompted for:
 - the Moco Bot API key,
 - your first and last name (used to resolve your user id).
 
-Credentials are stored in a local config file (see [Configuration](#configuration)).
+Credentials are stored in a local config file (see [Configuration](#-configuration)).
 
-## Commands
+## 🛠️ Commands
 
 | Command    | Description                             |
 |------------|-----------------------------------------|
@@ -84,9 +86,9 @@ Credentials are stored in a local config file (see [Configuration](#configuratio
 | `timer`    | Start/stop an activity timer.           |
 | `overtime` | Show your overtime report.              |
 
-A global `--debug` flag enables trace-level logging.
+A global `--debug` flag enables trace-level logging — for when things go sideways and you need the gory details. 🐛
 
-### Examples
+### 💡 Examples
 
 ```sh
 # List today's activities
@@ -125,9 +127,9 @@ mococli overtime --monthly
 
 <!-- TODO: confirm exact accepted values/defaults for each flag against `--help`. -->
 
-## Scripts
+## 📜 Scripts
 
-This project has no custom script runner; use standard Cargo commands:
+No fancy custom script runner here — just good old reliable Cargo commands:
 
 | Task    | Command                 |
 |---------|-------------------------|
@@ -140,7 +142,7 @@ This project has no custom script runner; use standard Cargo commands:
 
 <!-- TODO: add a CI configuration / Makefile if scripted workflows are desired. -->
 
-## Configuration
+## ⚙️ Configuration
 
 On login, configuration is written as JSON to your OS config directory under
 `mococli/mococp.json`:
@@ -162,9 +164,10 @@ On login, configuration is written as JSON to your OS config directory under
 }
 ```
 
-These fields are normally populated by `mococli login moco`; manual editing is optional.
+These fields are normally populated by `mococli login moco`; manual editing is optional
+(but we won't stop you 🤷).
 
-## Environment Variables
+## 🌱 Environment Variables
 
 - `RUST_LOG` — controls log verbosity via [`env_logger`](https://crates.io/crates/env_logger)
   (e.g. `RUST_LOG=debug`). The `--debug` flag forces trace-level logging regardless of this
@@ -174,7 +177,7 @@ These fields are normally populated by `mococli login moco`; manual editing is o
 
 <!-- TODO: Add unit/integration tests. -->
 
-## Project Structure
+## 🗂️ Project Structure
 
 ```
 .
@@ -193,7 +196,7 @@ These fields are normally populated by `mococli login moco`; manual editing is o
         └── model.rs      # Request/response data models
 ```
 
-## Tech Stack
+## 🧰 Tech Stack
 
 - **Language:** Rust (edition 2021)
 - **Package manager / build:** Cargo
@@ -206,6 +209,7 @@ These fields are normally populated by `mococli login moco`; manual editing is o
 - **Logging:** [`log`](https://crates.io/crates/log), [`env_logger`](https://crates.io/crates/env_logger)
 - **Misc:** `derive_more`, `num-traits`
 
-## License
+## 📄 License
 
-Licensed under the [MIT License](LICENSE). Copyright (c) 2022 Emanuel Vollmer.
+Licensed under the [MIT License](LICENSE) — short, sweet and permissive. 🎉
+Copyright © 2022 Emanuel Vollmer.
