@@ -64,7 +64,7 @@ pub fn render_list_select<T>(
 ) -> Result<usize, Box<dyn Error>> {
     loop {
         let mut rendered_list: Vec<Vec<String>> =
-            list.iter().enumerate().map(|ele| linenderer(ele)).collect();
+            list.iter().enumerate().map(linenderer).collect();
         rendered_list.insert(0, headline.iter().map(|x| x.to_string()).collect());
         render_table(rendered_list);
 
