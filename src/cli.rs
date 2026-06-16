@@ -18,7 +18,7 @@ pub struct Cli {
 
 #[derive(Debug, Subcommand)]
 pub enum Commands {
-    #[clap(about = "Login into (Moco/Jira)", long_about = None)]
+    #[clap(about = "Login into Moco", long_about = None)]
     Login {
         #[clap(arg_enum, default_value_t = Login::Moco)]
         system: Login,
