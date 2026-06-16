@@ -1,6 +1,6 @@
-use std::{cell::RefCell, error::Error, sync::Arc};
-
 use reqwest::Client;
+use std::rc::Rc;
+use std::{cell::RefCell, error::Error};
 
 use crate::moco::model::{
     Activity, ControlActivityTimer, CreateActivity, DeleteActivity, EditActivity, Employment,
@@ -11,7 +11,7 @@ use crate::config::AppConfig;
 
 pub struct MocoClient {
     client: Client,
-    config: Arc<RefCell<AppConfig>>,
+    config: Rc<RefCell<AppConfig>>,
 }
 
 #[derive(Debug, derive_more::Display)]
@@ -22,7 +22,7 @@ impl Error for MocoClientError {}
 
 #[allow(clippy::await_holding_refcell_ref)]
 impl MocoClient {
-    pub fn new(app_config: &Arc<RefCell<AppConfig>>) -> Self {
+    pub fn new(app_config: &Rc<RefCell<AppConfig>>) -> Self {
         MocoClient {
             client: Client::new(),
             config: app_config.clone(),

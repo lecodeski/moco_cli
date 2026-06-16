@@ -1,7 +1,7 @@
-use std::{cell::RefCell, error::Error, io::Write, sync::Arc, vec};
-
 use chrono::{Month, NaiveDate, Utc};
 use num_traits::FromPrimitive;
+use std::rc::Rc;
+use std::{cell::RefCell, error::Error, io::Write, vec};
 
 use utils::{prompt_activity_select, prompt_task_select, render_table};
 
@@ -30,7 +30,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         log_builder.filter_level(log::LevelFilter::Trace);
     }
     log_builder.init();
-    let config = Arc::new(RefCell::new(config::init()?));
+    let config = Rc::new(RefCell::new(config::init()?));
     let moco_client = MocoClient::new(&config);
 
     match args.command {
