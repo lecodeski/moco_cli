@@ -97,6 +97,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                             .to_string(),
                         activity.hours.to_string(),
                         activity.customer.name.clone(),
+                        activity.project.name.clone(),
                         activity.task.name.clone(),
                         activity
                             .description
@@ -113,6 +114,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                     "Day".to_string(),
                     "Hours".to_string(),
                     "Customer".to_string(),
+                    "Project".to_string(),
                     "Task".to_string(),
                     "Description".to_string(),
                 ],
@@ -127,7 +129,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
                     .to_string(),
                 "-".to_string(),
                 "-".to_string(),
-                "".to_string(),
+                "-".to_string(),
+                "-".to_string(),
             ]);
 
             render_table(list);
