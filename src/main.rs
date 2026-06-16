@@ -34,29 +34,26 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let moco_client = MocoClient::new(&config);
 
     match args.command {
-        cli::Commands::Login { system } => match system {
-            cli::Login::Moco => {
-                println!("Moco Login");
+        cli::Commands::Login => {
+            println!("MOCO Login");
 
-                let moco_company = ask_question("Enter Moco company name: ", &mandatory_validator)?;
-                let api_key = ask_question("Enter your personal API key: ", &mandatory_validator)?;
-                let bot_api_key =
-                    ask_question("Enter the Moco Bot API key: ", &mandatory_validator)?;
+            let moco_company = ask_question("Enter your company's name: ", &mandatory_validator)?;
+            let api_key = ask_question("Enter your personal API key: ", &mandatory_validator)?;
+            let bot_api_key = ask_question("Enter the MOCO Bot API key: ", &mandatory_validator)?;
 
-                config.borrow_mut().moco_company = Some(moco_company);
-                config.borrow_mut().moco_api_key = Some(api_key);
-                config.borrow_mut().moco_bot_api_key = Some(bot_api_key);
+            config.borrow_mut().moco_company = Some(moco_company);
+            config.borrow_mut().moco_api_key = Some(api_key);
+            config.borrow_mut().moco_bot_api_key = Some(bot_api_key);
 
-                let firstname = ask_question("Enter firstname: ", &mandatory_validator)?;
-                let lastname = ask_question("Enter lastname:  ", &mandatory_validator)?;
+            let firstname = ask_question("Enter firstname: ", &mandatory_validator)?;
+            let lastname = ask_question("Enter lastname:  ", &mandatory_validator)?;
 
-                let client_id = moco_client.get_user_id(firstname, lastname).await?;
+            let client_id = moco_client.get_user_id(firstname, lastname).await?;
 
-                config.borrow_mut().moco_user_id = client_id;
-                config.borrow_mut().write_config()?;
-                println!("🤩 Logged in 🤩")
-            }
-        },
+            config.borrow_mut().moco_user_id = client_id;
+            config.borrow_mut().write_config()?;
+            println!("🤩 Logged in 🤩")
+        }
         cli::Commands::List {
             week,
             month,

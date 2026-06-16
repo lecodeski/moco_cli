@@ -62,29 +62,29 @@ cargo install --path .
 ### 👋 First-time login
 
 ```sh
-mococli login moco
+mococli login
 ```
 
 You will be prompted for:
 
-- Moco company name (your MOCO subdomain),
+- MOCO company name (your MOCO subdomain),
 - your personal API key,
-- the Moco Bot API key,
+- the MOCO Bot API key,
 - your first and last name (used to resolve your user id).
 
 Credentials are stored in a local config file (see [Configuration](#-configuration)).
 
 ## 🛠️ Commands
 
-| Command    | Description                             |
-|------------|-----------------------------------------|
-| `login`    | Login into Moco (`mococli login moco`). |
-| `list`     | List activities.                        |
-| `new`      | Create a new activity.                  |
-| `edit`     | Edit an existing activity.              |
-| `rm`       | Delete an activity.                     |
-| `timer`    | Start/stop an activity timer.           |
-| `overtime` | Show your overtime report.              |
+| Command    | Description                        |
+|------------|------------------------------------|
+| `login`    | Login into MOCO (`mococli login`). |
+| `list`     | List activities.                   |
+| `new`      | Create a new activity.             |
+| `edit`     | Edit an existing activity.         |
+| `rm`       | Delete an activity.                |
+| `timer`    | Start/stop an activity timer.      |
+| `overtime` | Show your overtime report.         |
 
 A global `--debug` flag enables trace-level logging — for when things go sideways and you need the gory details. 🐛
 
@@ -164,7 +164,7 @@ On login, configuration is written as JSON to your OS config directory under
 }
 ```
 
-These fields are normally populated by `mococli login moco`; manual editing is optional
+These fields are normally populated by `mococli login`; manual editing is optional
 (but we won't stop you 🤷).
 
 ## 🌱 Environment Variables

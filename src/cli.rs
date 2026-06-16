@@ -6,8 +6,8 @@ pub fn init() -> Cli {
 }
 
 #[derive(Debug, Parser)]
-#[clap(name = "mococp")]
-#[clap(about = "Moco CLI", long_about = None)]
+#[clap(name = "mococli")]
+#[clap(about = "MOCO CLI", long_about = None)]
 pub struct Cli {
     #[clap(subcommand)]
     pub command: Commands,
@@ -18,11 +18,8 @@ pub struct Cli {
 
 #[derive(Debug, Subcommand)]
 pub enum Commands {
-    #[clap(about = "Login into Moco", long_about = None)]
-    Login {
-        #[clap(arg_enum, default_value_t = Login::Moco)]
-        system: Login,
-    },
+    #[clap(about = "Login into MOCO", long_about = None)]
+    Login,
     #[clap(about = "List activities", long_about = None)]
     List {
         #[clap(long)]
@@ -83,11 +80,6 @@ pub enum Commands {
         #[clap(long)]
         monthly: bool,
     },
-}
-
-#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ArgEnum)]
-pub enum Login {
-    Moco,
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ArgEnum)]
