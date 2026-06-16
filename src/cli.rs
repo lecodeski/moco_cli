@@ -1,5 +1,17 @@
 use chrono::NaiveDate;
+use clap::builder::styling::{AnsiColor, Styles};
 use clap::{Parser, Subcommand, ValueEnum};
+
+/// Combines clap v3's classic green/yellow help coloring with clap v4's
+/// bold/underline emphasis: colored *and* styled section headers.
+const HELP_STYLES: Styles = Styles::styled()
+    .header(AnsiColor::Yellow.on_default().bold().underline())
+    .usage(AnsiColor::Green.on_default().bold().underline())
+    .literal(AnsiColor::Green.on_default().bold())
+    .placeholder(AnsiColor::Green.on_default())
+    .valid(AnsiColor::Green.on_default().bold())
+    .invalid(AnsiColor::Yellow.on_default().bold())
+    .error(AnsiColor::Red.on_default().bold());
 
 pub fn init() -> Cli {
     Cli::parse()
@@ -8,6 +20,7 @@ pub fn init() -> Cli {
 #[derive(Debug, Parser)]
 #[clap(name = "mococli")]
 #[clap(about = "MOCO CLI", long_about = None)]
+#[clap(styles = HELP_STYLES)]
 pub struct Cli {
     #[clap(subcommand)]
     pub command: Commands,
