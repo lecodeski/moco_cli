@@ -1,5 +1,5 @@
 use chrono::NaiveDate;
-use clap::{ArgEnum, Parser, Subcommand};
+use clap::{Parser, Subcommand, ValueEnum};
 
 pub fn init() -> Cli {
     Cli::parse()
@@ -69,7 +69,7 @@ pub enum Commands {
     },
     #[clap(about = "Start/Stop activity timer", long_about = None)]
     Timer {
-        #[clap(arg_enum)]
+        #[clap(value_enum)]
         system: Timer,
 
         #[clap(long)]
@@ -82,7 +82,7 @@ pub enum Commands {
     },
 }
 
-#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ArgEnum)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
 pub enum Timer {
     Start,
     Stop,
