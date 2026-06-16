@@ -14,7 +14,7 @@ pub struct AppConfig {
 }
 
 fn get_config_path() -> Option<std::path::PathBuf> {
-    dirs::config_dir().map(|dir| dir.join("mococli").join("mococp.json"))
+    dirs::config_dir().map(|dir| dir.join("mococli").join("mococli.json"))
 }
 
 pub fn init() -> Result<AppConfig, Box<dyn Error>> {

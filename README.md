@@ -145,11 +145,11 @@ No fancy custom script runner here — just good old reliable Cargo commands:
 ## ⚙️ Configuration
 
 On login, configuration is written as JSON to your OS config directory under
-`mococli/mococp.json`:
+`mococli/mococli.json`:
 
-- Linux: `~/.config/mococli/mococp.json`
-- macOS: `~/Library/Application Support/mococli/mococp.json`
-- Windows: `%APPDATA%\mococli\mococp.json`
+- Linux: `~/.config/mococli/mococli.json`
+- macOS: `~/Library/Application Support/mococli/mococli.json`
+- Windows: `%APPDATA%\mococli\mococli.json`
 
 (The exact base directory is resolved by the [`dirs`](https://crates.io/crates/dirs) crate.)
 
@@ -188,7 +188,7 @@ These fields are normally populated by `mococli login`; manual editing is option
 └── src/
     ├── main.rs           # Entry point: CLI dispatch & command handling
     ├── cli.rs            # CLI definition (clap: commands, flags)
-    ├── config.rs         # App config: load/save credentials (mococp.json)
+    ├── config.rs         # App config: load/save credentials (mococli.json)
     ├── utils.rs          # Prompts, table rendering, date helpers
     └── moco/
         ├── mod.rs        # Module declarations
