@@ -1,11 +1,11 @@
-use reqwest::Client;
-use std::rc::Rc;
-use std::{cell::RefCell, error::Error};
-
 use crate::moco::model::{
     Activity, ControlActivityTimer, CreateActivity, DeleteActivity, EditActivity, Employment,
     GetActivity, PerformanceReport, Projects,
 };
+use chrono::NaiveDate;
+use reqwest::Client;
+use std::rc::Rc;
+use std::{cell::RefCell, error::Error};
 
 use crate::config::AppConfig;
 
@@ -61,14 +61,14 @@ impl MocoClient {
 
     pub async fn get_activities(
         &self,
-        from: String,
-        to: String,
+        from: NaiveDate,
+        to: NaiveDate,
         task_id: Option<String>,
         term: Option<String>,
     ) -> Result<Vec<Activity>, Box<dyn Error>> {
         let mut parameter = vec![
-            ("from", from),
-            ("to", to),
+            ("from", from.to_string()),
+            ("to", to.to_string()),
             (
                 "user_id",
                 format!("{}", &self.config.borrow().moco_user_id.unwrap()),
