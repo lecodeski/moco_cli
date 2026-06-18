@@ -1,11 +1,10 @@
 use crate::moco::client::MocoClient;
 use crate::moco::model::{Activity, Project, ProjectTask};
+use owo_colors::OwoColorize;
 use std::{error::Error, io::Write, vec};
 
-use chrono::{Duration, Local, NaiveDate};
-use chronoutil::shift_months;
+use chrono::{Duration, Local, Months, NaiveDate};
 use now::DateTimeNow;
-use num_traits::cast::ToPrimitive;
 
 pub fn read_line() -> Result<String, Box<dyn Error>> {
     let mut input = String::new();
@@ -42,13 +41,16 @@ pub fn render_table(list: Vec<Vec<String>>) {
         }
     }
 
-    for row in list.iter() {
+    for (row_index, row) in list.iter().enumerate() {
         for (column_index, column_content) in row.iter().enumerate() {
-            print!(
-                "{}{}\t",
-                column_content,
-                " ".repeat(list_elem_max_length[column_index] - column_content.len())
-            )
+            let padding = " ".repeat(list_elem_max_length[column_index] - column_content.len());
+            if row_index == 0 || list[row_index].first().unwrap() == "==>" {
+                print!("{}{}\t", column_content.bold(), padding)
+            } else if row_index % 2 == 0 {
+                print!("{}{}\t", column_content, padding)
+            } else {
+                print!("{}{}\t", column_content.green(), padding)
+            }
         }
         println!();
     }
@@ -85,15 +87,20 @@ pub fn select_from_to_date(
     backward: Option<i64>,
 ) -> (chrono::DateTime<Local>, chrono::DateTime<Local>) {
     let now = Local::now();
-    let backward = backward.unwrap_or(0_i64);
+    let backward = backward.unwrap_or(0);
     if week {
         let then = now.checked_sub_signed(Duration::weeks(backward)).unwrap();
+        print!("CW {}, ", then.week_of_year());
         (then.beginning_of_week(), then.end_of_week())
     } else if month {
-        let then = shift_months(now, -backward.to_i32().unwrap());
+        let then = now
+            .checked_sub_months(Months::new(backward as u32))
+            .unwrap();
+        print!("{}, ", then.format("%B"));
         (then.beginning_of_month(), then.end_of_month())
     } else {
         let then = now.checked_sub_signed(Duration::days(backward)).unwrap();
+        print!("{} Day(s) ago, ", backward);
         (then, then)
     }
 }

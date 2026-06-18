@@ -1,5 +1,6 @@
-use chrono::{Local, Month, NaiveDate};
+use chrono::{Datelike, Local, Month, NaiveDate};
 use num_traits::FromPrimitive;
+use owo_colors::OwoColorize;
 use std::rc::Rc;
 use std::{cell::RefCell, error::Error, io::Write, vec};
 use utils::{prompt_activity_select, prompt_task_select, render_table};
@@ -58,18 +59,23 @@ async fn main() -> Result<(), Box<dyn Error>> {
             backward,
             date,
         } => {
+            print!("List activities for ");
             let activities = match date {
                 Some(date) => {
-                    println!("List activities for {}", date.format(FORMAT_DATE_DAY));
+                    println!("{}", date.format(FORMAT_DATE_DAY));
                     moco_client.get_activities(date, date, None, None)
                 }
                 None => {
                     let (from, to) = utils::select_from_to_date(week, month, backward);
-                    println!(
-                        "List activities from {} – {}",
-                        from.format(FORMAT_DATE_DAY),
-                        to.format(FORMAT_DATE_DAY)
-                    );
+                    if from == to {
+                        println!("{}", from.format(FORMAT_DATE_DAY))
+                    } else {
+                        println!(
+                            "from {} – {}",
+                            from.format(FORMAT_DATE_DAY),
+                            to.format(FORMAT_DATE_DAY)
+                        )
+                    };
                     moco_client.get_activities(from.date_naive(), to.date_naive(), None, None)
                 }
             }
@@ -84,7 +90,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                             .date
                             .parse::<NaiveDate>()
                             .unwrap()
-                            .format("%A")
+                            .weekday()
                             .to_string(),
                         activity.hours.to_string(),
                         activity.customer.name.clone(),
@@ -112,16 +118,26 @@ async fn main() -> Result<(), Box<dyn Error>> {
             );
 
             list.push(vec![
-                "-".to_string(),
-                "-".to_string(),
+                "----------".to_string(),
+                "---".to_string(),
+                "------".to_string(),
+                "----------------".to_string(),
+                "--------------".to_string(),
+                "-----------".to_string(),
+                "-----------".to_string(),
+            ]);
+
+            list.push(vec![
+                "==>".to_string(),
+                "".to_string(),
                 activities
                     .iter()
                     .fold(0.0, |hours, activity| activity.hours + hours)
                     .to_string(),
-                "-".to_string(),
-                "-".to_string(),
-                "-".to_string(),
-                "-".to_string(),
+                "".to_string(),
+                "".to_string(),
+                "".to_string(),
+                "".to_string(),
             ]);
 
             render_table(list);
@@ -152,9 +168,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                         if answer.is_empty() {
                             None
                         } else {
-                            {
-                                answer.parse::<f64>().err().map(|e| format!("{}", e))
-                            }
+                            answer.parse::<f64>().err().map(|e| format!("{}", e))
                         }
                     })?;
                 if answer.is_empty() {
@@ -296,14 +310,14 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 let mut list: Vec<Vec<String>> = overtime
                     .monthly
                     .iter()
-                    .map(|month| {
+                    .map(|report| {
                         vec![
-                            format!("{:0>2}", month.month.to_string())
+                            format!("{:0>2}", report.month.to_string())
                                 + ": "
-                                + Month::from_i64(month.month).unwrap().name(),
-                            month.variation.to_string(),
-                            month.target_hours.to_string(),
-                            month.hours_tracked_total.to_string(),
+                                + Month::from_i64(report.month).unwrap().name(),
+                            report.variation.to_string(),
+                            report.target_hours.to_string(),
+                            report.hours_tracked_total.to_string(),
                         ]
                     })
                     .collect();
@@ -336,7 +350,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
             } else {
                 println!(
                     "Your current overtime until end of today: {}",
-                    overtime.annually.variation_until_today
+                    overtime.annually.variation_until_today.to_string().bold()
                 );
             }
         }
