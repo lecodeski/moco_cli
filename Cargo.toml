@@ -11,6 +11,7 @@ clap = { version = "4", features = ["derive"] }
 config = "0"
 derive_more = { version = "2", features = ["display"] }
 dirs = "6"
+unicode-ellipsis = "0"
 env_logger = "0"
 log = "0"
 now = "0"
