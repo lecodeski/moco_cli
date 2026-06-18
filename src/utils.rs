@@ -5,6 +5,10 @@ use std::{error::Error, io::Write, vec};
 
 use chrono::{Duration, Local, Months, NaiveDate};
 use now::DateTimeNow;
+use tabled::builder::Builder;
+use tabled::settings::object::Rows;
+use tabled::settings::style::{BorderColor, HorizontalLine};
+use tabled::settings::{Color, Style};
 
 pub fn read_line() -> Result<String, Box<dyn Error>> {
     let mut input = String::new();
@@ -27,33 +31,34 @@ pub fn render_table(list: Vec<Vec<String>>) {
         return;
     }
 
-    let mut list_elem_max_length = vec![0; list.first().unwrap().len()];
-
-    for row in list.iter() {
-        for (column_index, column_content) in row.iter().enumerate() {
-            if list_elem_max_length
-                .get(column_index)
-                .expect("Input list does not contain the same column count")
-                < &column_content.len()
-            {
-                list_elem_max_length[column_index] = column_content.len();
-            }
-        }
-    }
-
+    let mut builder = Builder::default();
     for (row_index, row) in list.iter().enumerate() {
-        for (column_index, column_content) in row.iter().enumerate() {
-            let padding = " ".repeat(list_elem_max_length[column_index] - column_content.len());
-            if row_index == 0 || list[row_index].first().unwrap() == "==>" {
-                print!("{}{}\t", column_content.bold(), padding)
+        let is_emphasized = row_index == 0 || row.first().map(|c| c == "==>").unwrap_or(false);
+        let styled = row.iter().map(|cell| {
+            if is_emphasized {
+                cell.bold().to_string()
             } else if row_index % 2 == 0 {
-                print!("{}{}\t", column_content, padding)
+                cell.to_string()
             } else {
-                print!("{}{}\t", column_content.green(), padding)
+                cell.green().to_string()
             }
-        }
-        println!();
+        });
+        builder.push_record(styled);
     }
+
+    let mut table = builder.build();
+    let line = HorizontalLine::new('─').intersection('+');
+
+    let appendix = match list.last().unwrap().first().unwrap().as_str() {
+        "==>" => 1,
+        _ => 0,
+    };
+    table.with(Style::psql().horizontals([(1, line), (list.len() - appendix, line)]));
+    table.modify(
+        Rows::one(list.len() - appendix),
+        BorderColor::new().top(Color::FG_GREEN),
+    );
+    println!("{}", table);
 }
 
 pub fn render_list_select<T>(
@@ -143,7 +148,7 @@ pub async fn prompt_task_select(
         let project_index = render_list_select(
             &projects,
             vec!["Index", "Customer", "Project", "Project ID"],
-            "Chose your Project: ",
+            "Choose your Project: ",
             &(|(index, project)| {
                 vec![
                     index.to_string(),
@@ -153,6 +158,7 @@ pub async fn prompt_task_select(
                 ]
             }),
         )?;
+        println!();
 
         &projects[project_index]
     };
@@ -166,7 +172,7 @@ pub async fn prompt_task_select(
         let task_index = render_list_select(
             &active_tasks,
             vec!["Index", "Task", "Task ID"],
-            "Chose your Task: ",
+            "Choose your Task: ",
             &(|(index, task)| vec![index.to_string(), task.name.clone(), task.id.to_string()]),
         )?;
         active_tasks[task_index]

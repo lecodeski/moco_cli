@@ -63,16 +63,16 @@ async fn main() -> Result<(), Box<dyn Error>> {
             print!("List activities for ");
             let activities = match date {
                 Some(date) => {
-                    println!("{}", date.format(FORMAT_DATE_DAY));
+                    println!("{}\n", date.format(FORMAT_DATE_DAY));
                     moco_client.get_activities(date, date, None, None)
                 }
                 None => {
                     let (from, to) = utils::select_from_to_date(week, month, backward);
                     if from == to {
-                        println!("{}", from.format(FORMAT_DATE_DAY))
+                        println!("{}\n", from.format(FORMAT_DATE_DAY))
                     } else {
                         println!(
-                            "from {} – {}",
+                            "from {} – {}\n",
                             from.format(FORMAT_DATE_DAY),
                             to.format(FORMAT_DATE_DAY)
                         )
@@ -117,16 +117,6 @@ async fn main() -> Result<(), Box<dyn Error>> {
                     "Description".to_string(),
                 ],
             );
-
-            list.push(vec![
-                "----------".to_string(),
-                "---".to_string(),
-                "------".to_string(),
-                "----------------".to_string(),
-                "--------------".to_string(),
-                "-----------".to_string(),
-                "-----------".to_string(),
-            ]);
 
             list.push(vec![
                 "==>".to_string(),
@@ -332,13 +322,6 @@ async fn main() -> Result<(), Box<dyn Error>> {
                         "Tracked Hours".to_string(),
                     ],
                 );
-
-                list.push(vec![
-                    "-------------".to_string(),
-                    "--------".to_string(),
-                    "------------".to_string(),
-                    "-------------".to_string(),
-                ]);
 
                 list.push(vec![
                     "==>".to_string(),
