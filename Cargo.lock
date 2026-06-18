@@ -195,15 +195,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "chronoutil"
-version = "0.2.7"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c9b58b07a67cadda9502b270eca5e0f1cd3afd08445e0ab1d52d909db01b4543"
-dependencies = [
- "chrono",
-]
-
-[[package]]
 name = "clap"
 version = "4.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1091,7 +1082,6 @@ name = "mococli"
 version = "0.2.0"
 dependencies = [
  "chrono",
- "chronoutil",
  "clap",
  "config",
  "derive_more",
@@ -1100,6 +1090,7 @@ dependencies = [
  "log",
  "now",
  "num-traits",
+ "owo-colors",
  "reqwest",
  "serde",
  "serde_json",
@@ -1157,6 +1148,12 @@ dependencies = [
  "dlv-list",
  "hashbrown 0.14.5",
 ]
+
+[[package]]
+name = "owo-colors"
+version = "4.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d211803b9b6b570f68772237e415a029d5a50c65d382910b879fb19d3271f94d"
 
 [[package]]
 name = "pathdiff"
