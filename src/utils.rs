@@ -72,10 +72,10 @@ pub fn render_list_select<T>(
 
         let index_input = read_line().map(|x| x.parse::<usize>().ok()).ok().flatten();
 
-        if let Some(index) = index_input {
-            if index < list.len() {
-                return Ok(index);
-            }
+        if let Some(index) = index_input
+            && index < list.len()
+        {
+            return Ok(index);
         }
         println!("Index Invalid")
     }

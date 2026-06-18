@@ -3,6 +3,7 @@ use num_traits::FromPrimitive;
 use owo_colors::OwoColorize;
 use std::rc::Rc;
 use std::{cell::RefCell, error::Error, io::Write, vec};
+use unicode_ellipsis::truncate_str;
 use utils::{prompt_activity_select, prompt_task_select, render_table};
 
 use crate::moco::model::{ControlActivityTimer, CreateActivity, DeleteActivity, GetActivity};
@@ -93,8 +94,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
                             .weekday()
                             .to_string(),
                         activity.hours.to_string(),
-                        activity.customer.name.clone(),
-                        activity.project.name.clone(),
+                        truncate_str(&activity.customer.name, 16).to_string(),
+                        truncate_str(&activity.project.name, 14).to_string(),
                         activity.task.name.clone(),
                         activity
                             .description
