@@ -1088,7 +1088,7 @@ dependencies = [
 
 [[package]]
 name = "mococli"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "chrono",
  "chronoutil",
@@ -2217,9 +2217,9 @@ dependencies = [
 
 [[package]]
 name = "webpki-root-certs"
-version = "1.0.7"
+version = "1.0.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f31141ce3fc3e300ae89b78c0dd67f9708061d1d2eda54b8209346fd6be9a92c"
+checksum = "0d46a5a140e6f7afeccd8eae97eff335163939eac8b929834875168b29b3d267"
 dependencies = [
  "rustls-pki-types",
 ]
