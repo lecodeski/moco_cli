@@ -36,13 +36,16 @@ pub enum Commands {
     #[clap(about = "List activities", long_about = None)]
     List {
         #[clap(long)]
-        week: bool,
+        day: Option<i64>,
 
         #[clap(long)]
-        month: bool,
+        week: Option<u32>,
 
         #[clap(long)]
-        backward: Option<i64>,
+        month: Option<u32>,
+
+        #[clap(long)]
+        backward: bool,
 
         #[clap(long)]
         date: Option<NaiveDate>,
