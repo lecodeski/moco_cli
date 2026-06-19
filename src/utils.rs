@@ -5,7 +5,7 @@ use owo_colors::OwoColorize;
 use std::{error::Error, io::Write, vec};
 
 use chrono::Weekday::Mon;
-use chrono::{Datelike, Duration, Local, Months, NaiveDate, Weekday};
+use chrono::{Datelike, Duration, Local, Months, NaiveDate};
 use now::DateTimeNow;
 use tabled::builder::Builder;
 use tabled::settings::object::Rows;
@@ -89,7 +89,7 @@ pub fn render_list_select<T>(
 }
 
 pub fn select_from_to_date(
-    day: Option<i64>,
+    day: Option<u32>,
     week: Option<u32>,
     month: Option<u32>,
     backward: bool,
@@ -98,15 +98,19 @@ pub fn select_from_to_date(
 
     if let Some(day) = day {
         let target_day = if backward {
-            print!("{} Day(s) ago, ", day);
-            now.checked_sub_signed(Duration::days(day))
+            match day {
+                0 => print!("today, "),
+                1 => print!("yesterday, "),
+                _ => print!("{} days ago, ", day),
+            }
+
+            now.checked_sub_signed(Duration::days(day as i64))
                 .unwrap()
                 .date_naive()
         } else {
             print!("Day {} in {}, ", day, now.year());
-            NaiveDate::from_yo_opt(now.year(), day as u32).expect("invalid day of year")
+            NaiveDate::from_yo_opt(now.year(), day).expect("invalid day of year")
         };
-
         (target_day, target_day)
     } else if let Some(week) = week {
         let target_week = if backward {
@@ -114,20 +118,32 @@ pub fn select_from_to_date(
                 .checked_sub_signed(Duration::weeks(week as i64))
                 .unwrap()
                 .date_naive();
-            print!("CW {}, ({} weeks ago), ", then.iso_week().week(), week);
+
+            let iso_week = then.iso_week().week();
+            match week {
+                0 => print!("current week (CW {}), ", iso_week),
+                1 => print!("last week (CW {}), ", iso_week),
+                _ => print!("CW {} ({} weeks ago), ", iso_week, week),
+            }
+
             then
         } else {
             print!("CW {}, ", week);
-            NaiveDate::from_isoywd_opt(now.year(), week as u32, Weekday::Mon)
-                .expect("invalid calendar week")
+            NaiveDate::from_isoywd_opt(now.year(), week, Mon).expect("invalid calendar week")
         }
         .week(Mon);
-
         (target_week.first_day(), target_week.last_day())
     } else if let Some(month) = month {
         let target_month = if backward {
-            let then = now.checked_sub_months(Months::new(month as u32)).unwrap();
-            print!("{}, ({} Month(s) ago), ", then.format("%B"), month);
+            let then = now.checked_sub_months(Months::new(month)).unwrap();
+
+            let then_month = then.format("%B");
+            match month {
+                0 => print!("current month ({}), ", then_month),
+                1 => print!("last month ({}), ", then_month),
+                _ => print!("{} ({} months ago), ", then_month, month),
+            }
+
             then
         } else {
             let then = now.with_month(month).unwrap();
