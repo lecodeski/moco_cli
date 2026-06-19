@@ -36,7 +36,7 @@ pub enum Commands {
     #[clap(about = "List activities", long_about = None)]
     List {
         #[clap(long)]
-        day: Option<i64>,
+        day: Option<u32>,
 
         #[clap(long)]
         week: Option<u32>,
