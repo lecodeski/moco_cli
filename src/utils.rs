@@ -1,9 +1,11 @@
 use crate::moco::client::MocoClient;
 use crate::moco::model::{Activity, Project, ProjectTask};
+//noinspection RsUnresolvedPath
 use owo_colors::OwoColorize;
 use std::{error::Error, io::Write, vec};
 
-use chrono::{Duration, Local, Months, NaiveDate};
+use chrono::Weekday::Mon;
+use chrono::{Datelike, Duration, Local, Months, NaiveDate, Weekday};
 use now::DateTimeNow;
 use tabled::builder::Builder;
 use tabled::settings::object::Rows;
@@ -87,26 +89,58 @@ pub fn render_list_select<T>(
 }
 
 pub fn select_from_to_date(
-    week: bool,
-    month: bool,
-    backward: Option<i64>,
-) -> (chrono::DateTime<Local>, chrono::DateTime<Local>) {
+    day: Option<i64>,
+    week: Option<u32>,
+    month: Option<u32>,
+    backward: bool,
+) -> (NaiveDate, NaiveDate) {
     let now = Local::now();
-    let backward = backward.unwrap_or(0);
-    if week {
-        let then = now.checked_sub_signed(Duration::weeks(backward)).unwrap();
-        print!("CW {}, ", then.week_of_year());
-        (then.beginning_of_week(), then.end_of_week())
-    } else if month {
-        let then = now
-            .checked_sub_months(Months::new(backward as u32))
-            .unwrap();
-        print!("{}, ", then.format("%B"));
-        (then.beginning_of_month(), then.end_of_month())
+
+    if let Some(day) = day {
+        let target_day = if backward {
+            print!("{} Day(s) ago, ", day);
+            now.checked_sub_signed(Duration::days(day))
+                .unwrap()
+                .date_naive()
+        } else {
+            print!("Day {} in {}, ", day, now.year());
+            NaiveDate::from_yo_opt(now.year(), day as u32).expect("invalid day of year")
+        };
+
+        (target_day, target_day)
+    } else if let Some(week) = week {
+        let target_week = if backward {
+            let then = now
+                .checked_sub_signed(Duration::weeks(week as i64))
+                .unwrap()
+                .date_naive();
+            print!("CW {}, ({} weeks ago), ", then.iso_week().week(), week);
+            then
+        } else {
+            print!("CW {}, ", week);
+            NaiveDate::from_isoywd_opt(now.year(), week as u32, Weekday::Mon)
+                .expect("invalid calendar week")
+        }
+        .week(Mon);
+
+        (target_week.first_day(), target_week.last_day())
+    } else if let Some(month) = month {
+        let target_month = if backward {
+            let then = now.checked_sub_months(Months::new(month as u32)).unwrap();
+            print!("{}, ({} Month(s) ago), ", then.format("%B"), month);
+            then
+        } else {
+            let then = now.with_month(month).unwrap();
+            print!("{}, ", then.format("%B"));
+            then
+        };
+
+        (
+            target_month.beginning_of_month().date_naive(),
+            target_month.end_of_month().date_naive(),
+        )
     } else {
-        let then = now.checked_sub_signed(Duration::days(backward)).unwrap();
-        print!("{} Day(s) ago, ", backward);
-        (then, then)
+        (now.date_naive(), now.date_naive())
     }
 }
 

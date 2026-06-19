@@ -1,5 +1,6 @@
 use chrono::{Datelike, Local, Month, NaiveDate};
 use num_traits::FromPrimitive;
+//noinspection RsUnresolvedPath
 use owo_colors::OwoColorize;
 use std::rc::Rc;
 use std::{cell::RefCell, error::Error, io::Write, vec};
@@ -19,7 +20,7 @@ mod moco;
 
 mod utils;
 
-const FORMAT_DATE_DAY: &str = "%Y-%m-%d, %A";
+const FORMAT_DATE_DAY: &str = "%A %Y-%m-%d";
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
@@ -55,32 +56,30 @@ async fn main() -> Result<(), Box<dyn Error>> {
             println!("🤩 Logged in 🤩")
         }
         cli::Commands::List {
+            day,
             week,
             month,
             backward,
             date,
         } => {
             print!("List activities for ");
-            let activities = match date {
-                Some(date) => {
-                    println!("{}\n", date.format(FORMAT_DATE_DAY));
-                    moco_client.get_activities(date, date, None, None)
-                }
-                None => {
-                    let (from, to) = utils::select_from_to_date(week, month, backward);
-                    if from == to {
-                        println!("{}\n", from.format(FORMAT_DATE_DAY))
-                    } else {
-                        println!(
-                            "from {} – {}\n",
-                            from.format(FORMAT_DATE_DAY),
-                            to.format(FORMAT_DATE_DAY)
-                        )
-                    };
-                    moco_client.get_activities(from.date_naive(), to.date_naive(), None, None)
-                }
-            }
-            .await?;
+
+            let (from, to) = match date {
+                Some(date) => (date, date),
+                None => utils::select_from_to_date(day, week, month, backward),
+            };
+
+            if from == to {
+                println!("{}\n", from.format(FORMAT_DATE_DAY))
+            } else {
+                println!(
+                    "from {} – {}\n",
+                    from.format(FORMAT_DATE_DAY),
+                    to.format(FORMAT_DATE_DAY)
+                )
+            };
+
+            let activities = moco_client.get_activities(from, to, None, None).await?;
 
             let mut list: Vec<Vec<String>> = activities
                 .iter()
