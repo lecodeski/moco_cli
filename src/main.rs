@@ -210,10 +210,11 @@ async fn main() -> Result<(), Box<dyn Error>> {
             print!("New duration (hours) - Default '{}': ", activity.hours);
             std::io::stdout().flush()?;
 
-            let mut hours = utils::read_line()?;
-            if hours.is_empty() {
-                hours = activity.hours.to_string()
-            }
+            let hours = match utils::read_line()?.replacen(',', ".", 1) {
+                s if s.is_empty() => activity.hours.to_string(),
+                s if s.starts_with('.') => format!("0{}", s),
+                s => s,
+            };
 
             print!(
                 "New description - Default '{}': ",
