@@ -24,7 +24,7 @@ Features:
 ## 📦 Requirements
 
 - [Rust](https://www.rust-lang.org/tools/install) toolchain (stable) with Cargo. The crate
-  uses Rust **edition 2021**.
+  uses Rust **edition 2024**.
   <!-- TODO: confirm and pin the minimum supported Rust version (MSRV). -->
 - Network access to your MOCO instance (`https://<company>.mocoapp.com`).
 - A MOCO account with:
@@ -94,12 +94,13 @@ A global `--debug` flag enables trace-level logging — for when things go sidew
 # List today's activities
 mococli list
 
-# List the current week / month
-mococli list --week
-mococli list --month
+# List a specific week / month of the current year
+mococli list --week 12
+mococli list --month 3
 
-# List activities a number of weeks/months backward
-mococli list --week --backward 1
+# List activities a number of weeks/months backward from now
+mococli list --week 1 --backward
+mococli list --month 2 --backward
 
 # List activities for a specific date
 mococli list --date 2022-01-31
@@ -198,18 +199,20 @@ These fields are normally populated by `mococli login`; manual editing is option
 
 ## 🧰 Tech Stack
 
-- **Language:** Rust (edition 2021)
+- **Language:** Rust (edition 2024)
 - **Package manager / build:** Cargo
 - **CLI:** [`clap`](https://crates.io/crates/clap) (derive)
 - **Async runtime:** [`tokio`](https://crates.io/crates/tokio)
 - **HTTP client:** [`reqwest`](https://crates.io/crates/reqwest) (JSON, rustls)
 - **Config:** [`config`](https://crates.io/crates/config), [`dirs`](https://crates.io/crates/dirs)
 - **Serialization:** [`serde`](https://crates.io/crates/serde), `serde_json`
-- **Dates:** [`chrono`](https://crates.io/crates/chrono), `chronoutil`, `now`
+- **Dates:** [`chrono`](https://crates.io/crates/chrono), `now`
+- **Tables:** [`tabled`](https://crates.io/crates/tabled)
+- **Colors & Styling:** [`owo-colors`](https://crates.io/crates/owo-colors)
 - **Logging:** [`log`](https://crates.io/crates/log), [`env_logger`](https://crates.io/crates/env_logger)
-- **Misc:** `derive_more`, `num-traits`
+- **Misc:** `derive_more`, `num-traits`, `unicode-ellipsis`
 
 ## 📄 License
 
 Licensed under the [MIT License](LICENSE) — short, sweet and permissive. 🎉
-Copyright © 2022 Emanuel Vollmer.
+Copyright © 2026 Emanuel Vollmer.
