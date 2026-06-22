@@ -197,15 +197,13 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 None => prompt_activity_select(&moco_client, activity).await,
             }?;
 
-            let now = Local::now().to_string();
-
             print!("New date (YYYY-MM-DD) - Default '{}': ", activity.date);
             std::io::stdout().flush()?;
 
-            let mut date = utils::read_line()?;
-            if date.is_empty() {
-                date = now.clone()
-            }
+            let date = match utils::read_line()? {
+                s if s.is_empty() => activity.date.to_string(),
+                s => s,
+            };
 
             print!("New duration (hours) - Default '{}': ", activity.hours);
             std::io::stdout().flush()?;
