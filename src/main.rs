@@ -21,6 +21,7 @@ mod moco;
 mod utils;
 
 const FORMAT_DATE_DAY: &str = "%A %Y-%m-%d";
+const FORMAT_DATE_DAY_WEEK: &str = constcat::concat!(FORMAT_DATE_DAY, " (CW %V)");
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
@@ -70,7 +71,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
             };
 
             if from == to {
-                println!("{}\n", from.format(FORMAT_DATE_DAY))
+                println!("{}\n", from.format(FORMAT_DATE_DAY_WEEK))
             } else {
                 println!(
                     "from {} – {}\n",
@@ -190,7 +191,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         cli::Commands::Edit { activity, date } => {
             let activity = match date {
                 Some(date) => {
-                    println!("Edit activities for {}", date.format(FORMAT_DATE_DAY));
+                    println!("Edit activities for {}", date.format(FORMAT_DATE_DAY_WEEK));
                     activity_select(&moco_client, activity, date, date).await
                 }
                 None => prompt_activity_select(&moco_client, activity).await,
@@ -243,7 +244,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
         cli::Commands::Rm { activity, date } => {
             let activity = match date {
                 Some(date) => {
-                    println!("Delete activities for {}", date.format(FORMAT_DATE_DAY));
+                    println!(
+                        "Delete activities for {}",
+                        date.format(FORMAT_DATE_DAY_WEEK)
+                    );
                     activity_select(&moco_client, activity, date, date).await
                 }
                 None => prompt_activity_select(&moco_client, activity).await,
