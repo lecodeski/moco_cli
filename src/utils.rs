@@ -19,15 +19,6 @@ pub fn read_line() -> Result<String, Box<dyn Error>> {
     Ok(input)
 }
 
-pub fn read_line_date() -> NaiveDate {
-    let result = read_line().unwrap();
-    if result.is_empty() {
-        Local::now().date_naive()
-    } else {
-        result.parse::<NaiveDate>().unwrap()
-    }
-}
-
 pub fn render_table(list: Vec<Vec<String>>) {
     if list.is_empty() {
         return;
@@ -160,7 +151,7 @@ pub fn select_from_to_date(
     }
 }
 
-pub fn ask_question(
+pub fn ask_question_mandatory(
     question: &str,
     validator: &dyn Fn(&str) -> Option<String>,
 ) -> Result<String, Box<dyn Error>> {
@@ -173,6 +164,23 @@ pub fn ask_question(
             continue;
         }
         return Ok(line);
+    }
+}
+
+pub fn ask_question<T>(
+    question: &str,
+    validator: &dyn Fn(&str) -> Result<T, Box<dyn Error>>,
+) -> Result<T, Box<dyn Error>> {
+    loop {
+        print!("{}", question);
+        std::io::stdout().flush()?;
+        let line = read_line()?;
+        let result = validator(&line);
+        if let Err(error) = result {
+            println!("{}", error);
+            continue;
+        }
+        return result;
     }
 }
 
