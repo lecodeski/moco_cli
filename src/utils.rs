@@ -368,13 +368,13 @@ pub async fn activity_delete_loop(
         }
 
         // If an activity id was passed directly, delete it once and keep looping.
-        if let Some(id) = activity.take() {
-            if let Some(a) = activities.iter().find(|a| a.id == id) {
-                moco_client
-                    .delete_activity(&DeleteActivity { activity_id: a.id })
-                    .await?;
-                continue;
-            }
+        if let Some(id) = activity.take()
+            && let Some(a) = activities.iter().find(|a| a.id == id)
+        {
+            moco_client
+                .delete_activity(&DeleteActivity { activity_id: a.id })
+                .await?;
+            continue;
         }
 
         let selection = render_list_select_all(

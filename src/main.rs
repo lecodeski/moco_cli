@@ -1,6 +1,5 @@
 use chrono::{Datelike, Local, Month, NaiveDate};
 //noinspection RsUnresolvedPath
-use clap::builder::TypedValueParser;
 use num_traits::FromPrimitive;
 use owo_colors::OwoColorize;
 use std::rc::Rc;
