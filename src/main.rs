@@ -8,8 +8,11 @@ use std::{cell::RefCell, error::Error, io::Write, vec};
 use unicode_ellipsis::truncate_str;
 use utils::{prompt_activity_select, prompt_task_select, render_table};
 
-use crate::moco::model::{ControlActivityTimer, CreateActivity, DeleteActivity, GetActivity};
-use crate::utils::{activity_select, ask_question_mandatory, prompt_activity_select_today};
+use crate::moco::model::{ControlActivityTimer, CreateActivity, GetActivity};
+use crate::utils::{
+    activity_delete_loop, activity_select, ask_question_mandatory, prompt_activity_select_today,
+    prompt_from_to_date,
+};
 use crate::{
     moco::{client::MocoClient, model::EditActivity},
     utils::{ask_question, mandatory_validator},
@@ -249,22 +252,18 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 .await?;
         }
         cli::Commands::Rm { activity, date } => {
-            let activity = match date {
+            let (from, to) = match date {
                 Some(date) => {
                     println!(
                         "Delete activities for {}",
                         date.format(FORMAT_DATE_DAY_WEEK)
                     );
-                    activity_select(&moco_client, activity, date, date).await
+                    (date, date)
                 }
-                None => prompt_activity_select(&moco_client, activity).await,
-            }?;
+                None => prompt_from_to_date()?,
+            };
 
-            moco_client
-                .delete_activity(&DeleteActivity {
-                    activity_id: activity.id,
-                })
-                .await?;
+            activity_delete_loop(&moco_client, activity, from, to).await?;
         }
         cli::Commands::Timer { system, activity } => match system {
             cli::Timer::Start => {
