@@ -46,6 +46,7 @@ pub enum Commands {
     List {
         #[clap(long, help = "Show activities for a specific date (YYYY-MM-DD)")]
         date: Option<NaiveDate>,
+
         #[clap(long, help = "Show activities for a specific day of the year")]
         day: Option<u32>,
 
@@ -102,6 +103,12 @@ pub enum Commands {
 
         #[clap(long, help = "The date of the activity to delete (YYYY-MM-DD)")]
         date: Option<NaiveDate>,
+
+        #[clap(
+            long,
+            help = "Delete activities in a loop which exits when no more activities are found"
+        )]
+        r#loop: bool,
     },
     #[clap(
         about = "Start or stop the activity timer",
