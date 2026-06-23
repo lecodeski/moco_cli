@@ -347,15 +347,6 @@ pub fn prompt_from_to_date() -> Result<(NaiveDate, NaiveDate), Box<dyn Error>> {
     Ok((from, to))
 }
 
-pub async fn prompt_activity_select(
-    moco_client: &MocoClient,
-    activity: Option<i64>,
-) -> Result<Activity, Box<dyn Error>> {
-    let (from, to) = prompt_from_to_date()?;
-
-    activity_select(moco_client, activity, from, to).await
-}
-
 pub async fn activity_delete_loop(
     moco_client: &MocoClient,
     mut activity: Option<i64>,

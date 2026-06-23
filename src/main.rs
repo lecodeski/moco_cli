@@ -1,13 +1,13 @@
 use chrono::{Datelike, Local, Month, NaiveDate};
-//noinspection RsUnresolvedPath
 use num_traits::FromPrimitive;
+//noinspection RsUnresolvedPath
 use owo_colors::OwoColorize;
 use std::rc::Rc;
 use std::{cell::RefCell, error::Error, io::Write, vec};
 use unicode_ellipsis::truncate_str;
-use utils::{prompt_activity_select, prompt_task_select, render_table};
+use utils::{prompt_task_select, render_table};
 
-use crate::moco::model::{ControlActivityTimer, CreateActivity, GetActivity};
+use crate::moco::model::{ControlActivityTimer, CreateActivity, DeleteActivity, GetActivity};
 use crate::utils::{
     activity_delete_loop, activity_select, ask_question_mandatory, prompt_activity_select_today,
     prompt_from_to_date,
@@ -199,7 +199,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
                     println!("Edit activities for {}", date.format(FORMAT_DATE_DAY_WEEK));
                     activity_select(&moco_client, activity, date, date).await
                 }
-                None => prompt_activity_select(&moco_client, activity).await,
+                None => {
+                    let (from, to) = prompt_from_to_date()?;
+                    activity_select(&moco_client, activity, from, to).await
+                }
             }?;
 
             let date = ask_question(
@@ -250,7 +253,11 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 })
                 .await?;
         }
-        cli::Commands::Rm { activity, date } => {
+        cli::Commands::Rm {
+            activity,
+            date,
+            r#loop,
+        } => {
             let (from, to) = match date {
                 Some(date) => {
                     println!(
@@ -262,7 +269,15 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 None => prompt_from_to_date()?,
             };
 
-            activity_delete_loop(&moco_client, activity, from, to).await?;
+            if r#loop {
+                activity_delete_loop(&moco_client, activity, from, to).await?;
+            } else {
+                moco_client
+                    .delete_activity(&DeleteActivity {
+                        activity_id: activity_select(&moco_client, activity, from, to).await?.id,
+                    })
+                    .await?;
+            }
         }
         cli::Commands::Timer { system, activity } => match system {
             cli::Timer::Start => {
