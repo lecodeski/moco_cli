@@ -1,5 +1,5 @@
 use crate::moco::client::MocoClient;
-use crate::moco::model::{Activity, Project, ProjectTask};
+use crate::moco::model::{Activity, DeleteActivity, Project, ProjectTask};
 //noinspection RsUnresolvedPath
 use owo_colors::OwoColorize;
 use std::{error::Error, io::Write, vec};
@@ -74,6 +74,40 @@ pub fn render_list_select<T>(
             && index < list.len()
         {
             return Ok(index);
+        }
+        println!("Index Invalid")
+    }
+}
+
+pub enum ListSelection {
+    Index(usize),
+    All,
+}
+
+pub fn render_list_select_all<T>(
+    list: &[T],
+    headline: Vec<&str>,
+    prompt: &str,
+    linenderer: &dyn Fn((usize, &T)) -> Vec<String>,
+) -> Result<ListSelection, Box<dyn Error>> {
+    loop {
+        let mut rendered_list: Vec<Vec<String>> = list.iter().enumerate().map(linenderer).collect();
+        rendered_list.insert(0, headline.iter().map(|x| x.to_string()).collect());
+        render_table(rendered_list);
+
+        print!("{}", prompt);
+        std::io::stdout().flush()?;
+
+        let input = read_line()?;
+
+        if input.trim().eq_ignore_ascii_case("a") {
+            return Ok(ListSelection::All);
+        }
+
+        if let Some(index) = input.trim().parse::<usize>().ok()
+            && index < list.len()
+        {
+            return Ok(ListSelection::Index(index));
         }
         println!("Index Invalid")
     }
@@ -284,10 +318,7 @@ pub async fn activity_select(
     Ok(activity.clone())
 }
 
-pub async fn prompt_activity_select(
-    moco_client: &MocoClient,
-    activity: Option<i64>,
-) -> Result<Activity, Box<dyn Error>> {
+pub fn prompt_from_to_date() -> Result<(NaiveDate, NaiveDate), Box<dyn Error>> {
     let now = Local::now().date_naive();
 
     print!("List activities from (YYYY-MM-DD) - Default 'today': ");
@@ -310,7 +341,89 @@ pub async fn prompt_activity_select(
         to_input.parse::<NaiveDate>()?
     };
 
+    Ok((from, to))
+}
+
+pub async fn prompt_activity_select(
+    moco_client: &MocoClient,
+    activity: Option<i64>,
+) -> Result<Activity, Box<dyn Error>> {
+    let (from, to) = prompt_from_to_date()?;
+
     activity_select(moco_client, activity, from, to).await
+}
+
+pub async fn activity_delete_loop(
+    moco_client: &MocoClient,
+    mut activity: Option<i64>,
+    from: NaiveDate,
+    to: NaiveDate,
+) -> Result<(), Box<dyn Error>> {
+    loop {
+        let activities = moco_client.get_activities(from, to, None, None).await?;
+
+        if activities.is_empty() {
+            println!("No (more) activities to delete");
+            break;
+        }
+
+        // If an activity id was passed directly, delete it once and keep looping.
+        if let Some(id) = activity.take() {
+            if let Some(a) = activities.iter().find(|a| a.id == id) {
+                moco_client
+                    .delete_activity(&DeleteActivity { activity_id: a.id })
+                    .await?;
+                continue;
+            }
+        }
+
+        let selection = render_list_select_all(
+            &activities,
+            vec![
+                "Index",
+                "Date",
+                "Duration",
+                "Project",
+                "Task",
+                "Description",
+            ],
+            "Choose your Activity ('a' deletes all): ",
+            &(|(index, activity)| {
+                vec![
+                    index.to_string(),
+                    activity.date.clone(),
+                    activity.hours.to_string(),
+                    activity.project.name.clone(),
+                    activity.task.name.clone(),
+                    activity
+                        .description
+                        .as_ref()
+                        .unwrap_or(&String::new())
+                        .to_string(),
+                ]
+            }),
+        )?;
+
+        match selection {
+            ListSelection::All => {
+                for a in &activities {
+                    moco_client
+                        .delete_activity(&DeleteActivity { activity_id: a.id })
+                        .await?;
+                }
+                break;
+            }
+            ListSelection::Index(index) => {
+                moco_client
+                    .delete_activity(&DeleteActivity {
+                        activity_id: activities[index].id,
+                    })
+                    .await?;
+            }
+        }
+    }
+
+    Ok(())
 }
 
 pub async fn prompt_activity_select_today(
