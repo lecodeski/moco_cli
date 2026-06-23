@@ -1,6 +1,7 @@
 use chrono::{Datelike, Local, Month, NaiveDate};
-use num_traits::FromPrimitive;
 //noinspection RsUnresolvedPath
+use clap::builder::TypedValueParser;
+use num_traits::FromPrimitive;
 use owo_colors::OwoColorize;
 use std::rc::Rc;
 use std::{cell::RefCell, error::Error, io::Write, vec};
@@ -8,7 +9,7 @@ use unicode_ellipsis::truncate_str;
 use utils::{prompt_activity_select, prompt_task_select, render_table};
 
 use crate::moco::model::{ControlActivityTimer, CreateActivity, DeleteActivity, GetActivity};
-use crate::utils::{activity_select, prompt_activity_select_today};
+use crate::utils::{activity_select, ask_question_mandatory, prompt_activity_select_today};
 use crate::{
     moco::{client::MocoClient, model::EditActivity},
     utils::{ask_question, mandatory_validator},
@@ -39,16 +40,19 @@ async fn main() -> Result<(), Box<dyn Error>> {
         cli::Commands::Login => {
             println!("MOCO Login");
 
-            let moco_company = ask_question("Enter your company's name: ", &mandatory_validator)?;
-            let api_key = ask_question("Enter your personal API key: ", &mandatory_validator)?;
-            let bot_api_key = ask_question("Enter the MOCO Bot API key: ", &mandatory_validator)?;
+            let moco_company =
+                ask_question_mandatory("Enter your company's name: ", &mandatory_validator)?;
+            let api_key =
+                ask_question_mandatory("Enter your personal API key: ", &mandatory_validator)?;
+            let bot_api_key =
+                ask_question_mandatory("Enter the MOCO Bot API key: ", &mandatory_validator)?;
 
             config.borrow_mut().moco_company = Some(moco_company);
             config.borrow_mut().moco_api_key = Some(api_key);
             config.borrow_mut().moco_bot_api_key = Some(bot_api_key);
 
-            let firstname = ask_question("Enter firstname: ", &mandatory_validator)?;
-            let lastname = ask_question("Enter lastname:  ", &mandatory_validator)?;
+            let firstname = ask_question_mandatory("Enter firstname: ", &mandatory_validator)?;
+            let lastname = ask_question_mandatory("Enter lastname:  ", &mandatory_validator)?;
 
             let client_id = moco_client.get_user_id(firstname, lastname).await?;
 
@@ -145,28 +149,27 @@ async fn main() -> Result<(), Box<dyn Error>> {
             let date = if let Some(d) = date {
                 d
             } else {
-                print!("Date (YYYY-MM-DD) - Default 'today': ");
-                std::io::stdout().flush()?;
-
-                utils::read_line_date()
+                ask_question(
+                    "Date (YYYY-MM-DD) - Default 'today': ",
+                    &|answer| match answer.to_string() {
+                        s if s.is_empty() => Ok(Local::now().date_naive()),
+                        s => Ok(s.parse()?),
+                    },
+                )?
             };
 
             let hours = if let Some(h) = hours {
                 h
             } else {
-                let answer =
-                    ask_question("Duration (hours) - Default 'start timer': ", &|answer| {
-                        if answer.is_empty() {
-                            None
-                        } else {
-                            answer.parse::<f64>().err().map(|e| format!("{}", e))
-                        }
-                    })?;
-                if answer.is_empty() {
-                    0_f64
-                } else {
-                    answer.parse::<f64>()?
-                }
+                ask_question("Duration (hours) - Default 'start timer': ", &|answer| {
+                    Ok(match answer.replacen(',', ".", 1) {
+                        s if s.is_empty() => "0".to_string(),
+                        s if s == "." => "".to_string(),
+                        s if s.starts_with('.') => format!("0{}", s),
+                        s => s,
+                    }
+                    .parse::<f64>()?)
+                })?
             };
 
             let description = if let Some(d) = description {
@@ -197,46 +200,51 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 None => prompt_activity_select(&moco_client, activity).await,
             }?;
 
-            print!("New date (YYYY-MM-DD) - Default '{}': ", activity.date);
-            std::io::stdout().flush()?;
+            let date = ask_question(
+                &format!("New date (YYYY-MM-DD) - Default '{}': ", activity.date),
+                &|answer| {
+                    Ok(match answer.to_string() {
+                        s if s.is_empty() => activity.date.clone(),
+                        s => s,
+                    }
+                    .parse::<NaiveDate>()?)
+                },
+            )?;
 
-            let date = match utils::read_line()? {
-                s if s.is_empty() => activity.date.to_string(),
-                s => s,
-            };
+            let hours = ask_question(
+                &format!("New duration (hours) - Default '{}': ", activity.hours),
+                &|answer| {
+                    Ok(match answer.replacen(',', ".", 1) {
+                        s if s.is_empty() => activity.hours.to_string(),
+                        s if s == "." => "".to_string(),
+                        s if s.starts_with('.') => format!("0{}", s),
+                        s => s,
+                    }
+                    .parse::<f64>()?)
+                },
+            )?;
 
-            print!("New duration (hours) - Default '{}': ", activity.hours);
-            std::io::stdout().flush()?;
-
-            let hours = match utils::read_line()?.replacen(',', ".", 1) {
-                s if s.is_empty() => activity.hours.to_string(),
-                s if s.starts_with('.') => format!("0{}", s),
-                s => s,
-            };
-
-            print!(
-                "New description - Default '{}': ",
-                activity.description.as_deref().unwrap_or("")
-            );
-            std::io::stdout().flush()?;
-
-            let mut description = utils::read_line()?;
-            if description.is_empty() {
-                description = activity
-                    .description
-                    .as_ref()
-                    .unwrap_or(&String::new())
-                    .to_string()
-            }
+            let description = ask_question(
+                &format!(
+                    "New description - Default '{}': ",
+                    activity.description.clone().unwrap()
+                ),
+                &|answer| {
+                    Ok(match answer.to_string() {
+                        s if s.is_empty() => activity.description.clone().unwrap(),
+                        s => s,
+                    })
+                },
+            )?;
 
             moco_client
                 .edit_activity(&EditActivity {
                     activity_id: activity.id,
                     project_id: activity.project.id,
                     task_id: activity.task.id,
-                    date,
+                    date: date.to_string(),
                     description,
-                    hours,
+                    hours: hours.to_string(),
                 })
                 .await?;
         }
