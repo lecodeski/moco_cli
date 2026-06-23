@@ -101,7 +101,7 @@ pub fn render_list_select_all<T>(
 
         let input = read_line()?;
 
-        if input.trim().eq_ignore_ascii_case("a") {
+        if input.trim() == "A" {
             return Ok(ListSelection::All);
         }
 
@@ -291,7 +291,7 @@ pub async fn activity_select(
             vec![
                 "Index",
                 "Date",
-                "Duration",
+                "Hours",
                 "Customer",
                 "Project",
                 "Task",
@@ -385,13 +385,13 @@ pub async fn activity_delete_loop(
             vec![
                 "Index",
                 "Date",
-                "Duration",
+                "Hours",
                 "Customer",
                 "Project",
                 "Task",
                 "Description",
             ],
-            "Choose your Activity ('a' deletes all): ",
+            "Choose your Activity ('A' deletes all): ",
             &(|(index, activity)| {
                 vec![
                     index.to_string(),
