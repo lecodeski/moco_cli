@@ -11,6 +11,7 @@ use tabled::builder::Builder;
 use tabled::settings::object::Rows;
 use tabled::settings::style::{BorderColor, HorizontalLine};
 use tabled::settings::{Color, Style};
+use unicode_ellipsis::truncate_str;
 
 pub fn read_line() -> Result<String, Box<dyn Error>> {
     let mut input = String::new();
@@ -291,6 +292,7 @@ pub async fn activity_select(
                 "Index",
                 "Date",
                 "Duration",
+                "Customer",
                 "Project",
                 "Task",
                 "Description",
@@ -301,7 +303,8 @@ pub async fn activity_select(
                     index.to_string(),
                     activity.date.clone(),
                     activity.hours.to_string(),
-                    activity.project.name.clone(),
+                    truncate_str(&activity.customer.name, 16).to_string(),
+                    truncate_str(&activity.project.name, 14).to_string(),
                     activity.task.name.clone(),
                     activity
                         .description
@@ -383,6 +386,7 @@ pub async fn activity_delete_loop(
                 "Index",
                 "Date",
                 "Duration",
+                "Customer",
                 "Project",
                 "Task",
                 "Description",
@@ -393,7 +397,8 @@ pub async fn activity_delete_loop(
                     index.to_string(),
                     activity.date.clone(),
                     activity.hours.to_string(),
-                    activity.project.name.clone(),
+                    truncate_str(&activity.customer.name, 16).to_string(),
+                    truncate_str(&activity.project.name, 14).to_string(),
                     activity.task.name.clone(),
                     activity
                         .description
