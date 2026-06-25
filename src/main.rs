@@ -9,8 +9,8 @@ use utils::{prompt_task_select, render_table};
 
 use crate::moco::model::{ControlActivityTimer, CreateActivity, DeleteActivity, GetActivity};
 use crate::utils::{
-    activity_delete_loop, activity_select, ask_question_mandatory, prompt_activity_select_today,
-    prompt_from_to_date,
+    activity_delete_loop, activity_select, ask_question_mandatory, footer,
+    prompt_activity_select_today, prompt_from_to_date,
 };
 use crate::{
     moco::{client::MocoClient, model::EditActivity},
@@ -124,18 +124,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 ],
             );
 
-            list.push(vec![
-                "==>".to_string(),
-                "".to_string(),
-                activities
-                    .iter()
-                    .fold(0.0, |hours, activity| activity.hours + hours)
-                    .to_string(),
-                "".to_string(),
-                "".to_string(),
-                "".to_string(),
-                "".to_string(),
-            ]);
+            list.push(footer(activities.clone()));
 
             render_table(list);
         }
