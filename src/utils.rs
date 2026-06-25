@@ -57,13 +57,18 @@ pub fn render_table(list: Vec<Vec<String>>) {
 
 pub fn render_list_select<T>(
     list: &[T],
-    headline: Vec<&str>,
+    header: Vec<String>,
+    footer: Option<Vec<String>>,
     prompt: &str,
-    linenderer: &dyn Fn((usize, &T)) -> Vec<String>,
+    line_renderer: &dyn Fn((usize, &T)) -> Vec<String>,
 ) -> Result<usize, Box<dyn Error>> {
     loop {
-        let mut rendered_list: Vec<Vec<String>> = list.iter().enumerate().map(linenderer).collect();
-        rendered_list.insert(0, headline.iter().map(|x| x.to_string()).collect());
+        let mut rendered_list: Vec<Vec<String>> =
+            list.iter().enumerate().map(line_renderer).collect();
+        rendered_list.insert(0, header.clone());
+        if let Some(ref footer) = footer {
+            rendered_list.push(footer.clone())
+        }
         render_table(rendered_list);
 
         print!("{}", prompt);
@@ -87,13 +92,16 @@ pub enum ListSelection {
 
 pub fn render_list_select_all<T>(
     list: &[T],
-    headline: Vec<&str>,
+    header: Vec<String>,
+    footer: Vec<String>,
     prompt: &str,
-    linenderer: &dyn Fn((usize, &T)) -> Vec<String>,
+    line_renderer: &dyn Fn((usize, &T)) -> Vec<String>,
 ) -> Result<ListSelection, Box<dyn Error>> {
     loop {
-        let mut rendered_list: Vec<Vec<String>> = list.iter().enumerate().map(linenderer).collect();
-        rendered_list.insert(0, headline.iter().map(|x| x.to_string()).collect());
+        let mut rendered_list: Vec<Vec<String>> =
+            list.iter().enumerate().map(line_renderer).collect();
+        rendered_list.insert(0, header.clone());
+        rendered_list.push(footer.clone());
         render_table(rendered_list);
 
         print!("{}", prompt);
@@ -240,7 +248,13 @@ pub async fn prompt_task_select(
     } else {
         let project_index = render_list_select(
             &projects,
-            vec!["Index", "Customer", "Project", "Project ID"],
+            vec![
+                "Index".to_string(),
+                "Customer".to_string(),
+                "Project".to_string(),
+                "Project ID".to_string(),
+            ],
+            None,
             "Choose your Project: ",
             &(|(index, project)| {
                 vec![
@@ -264,7 +278,12 @@ pub async fn prompt_task_select(
     } else {
         let task_index = render_list_select(
             &active_tasks,
-            vec!["Index", "Task", "Task ID"],
+            vec![
+                "Index".to_string(),
+                "Task".to_string(),
+                "Task ID".to_string(),
+            ],
+            None,
             "Choose your Task: ",
             &(|(index, task)| vec![index.to_string(), task.name.clone(), task.id.to_string()]),
         )?;
@@ -289,30 +308,17 @@ pub async fn activity_select(
         let activity_index = render_list_select(
             &activities,
             vec![
-                "Index",
-                "Date",
-                "Hours",
-                "Customer",
-                "Project",
-                "Task",
-                "Description",
+                "Index".to_string(),
+                "Date".to_string(),
+                "Hours".to_string(),
+                "Customer".to_string(),
+                "Project".to_string(),
+                "Task".to_string(),
+                "Description".to_string(),
             ],
+            Some(footer(activities.clone())),
             "Choose your Activity: ",
-            &(|(index, activity)| {
-                vec![
-                    index.to_string(),
-                    activity.date.clone(),
-                    activity.hours.to_string(),
-                    truncate_str(&activity.customer.name, 16).to_string(),
-                    truncate_str(&activity.project.name, 14).to_string(),
-                    activity.task.name.clone(),
-                    activity
-                        .description
-                        .as_ref()
-                        .unwrap_or(&String::new())
-                        .to_string(),
-                ]
-            }),
+            &activity_line_renderer,
         )?;
 
         &activities[activity_index]
@@ -374,30 +380,17 @@ pub async fn activity_delete_loop(
         let selection = render_list_select_all(
             &activities,
             vec![
-                "Index",
-                "Date",
-                "Hours",
-                "Customer",
-                "Project",
-                "Task",
-                "Description",
+                "Index".to_string(),
+                "Date".to_string(),
+                "Hours".to_string(),
+                "Customer".to_string(),
+                "Project".to_string(),
+                "Task".to_string(),
+                "Description".to_string(),
             ],
+            footer(activities.clone()),
             "Choose your Activity ('A' deletes all): ",
-            &(|(index, activity)| {
-                vec![
-                    index.to_string(),
-                    activity.date.clone(),
-                    activity.hours.to_string(),
-                    truncate_str(&activity.customer.name, 16).to_string(),
-                    truncate_str(&activity.project.name, 14).to_string(),
-                    activity.task.name.clone(),
-                    activity
-                        .description
-                        .as_ref()
-                        .unwrap_or(&String::new())
-                        .to_string(),
-                ]
-            }),
+            &activity_line_renderer,
         )?;
 
         match selection {
@@ -431,4 +424,35 @@ pub async fn prompt_activity_select_today(
     println!("List activities for today: ");
 
     activity_select(moco_client, activity, now, now).await
+}
+
+pub fn footer(activities: Vec<Activity>) -> Vec<String> {
+    vec![
+        "==>".to_string(),
+        "".to_string(),
+        activities
+            .iter()
+            .fold(0.0, |hours, activity| activity.hours + hours)
+            .to_string(),
+        "".to_string(),
+        "".to_string(),
+        "".to_string(),
+        "".to_string(),
+    ]
+}
+
+pub fn activity_line_renderer((index, activity): (usize, &Activity)) -> Vec<String> {
+    vec![
+        index.to_string(),
+        activity.date.clone(),
+        activity.hours.to_string(),
+        truncate_str(&activity.customer.name, 16).to_string(),
+        truncate_str(&activity.project.name, 14).to_string(),
+        activity.task.name.clone(),
+        activity
+            .description
+            .as_ref()
+            .unwrap_or(&String::new())
+            .to_string(),
+    ]
 }
