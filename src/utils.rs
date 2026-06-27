@@ -62,18 +62,16 @@ pub fn render_list_select<T>(
     prompt: &str,
     line_renderer: &dyn Fn((usize, &T)) -> Vec<String>,
 ) -> Result<usize, Box<dyn Error>> {
+    let mut rendered_list: Vec<Vec<String>> = list.iter().enumerate().map(line_renderer).collect();
+    rendered_list.insert(0, header.clone());
+    if let Some(ref footer) = footer {
+        rendered_list.push(footer.clone())
+    }
+    render_table(rendered_list);
+
+    print!("{}", prompt);
+    std::io::stdout().flush()?;
     loop {
-        let mut rendered_list: Vec<Vec<String>> =
-            list.iter().enumerate().map(line_renderer).collect();
-        rendered_list.insert(0, header.clone());
-        if let Some(ref footer) = footer {
-            rendered_list.push(footer.clone())
-        }
-        render_table(rendered_list);
-
-        print!("{}", prompt);
-        std::io::stdout().flush()?;
-
         let index_input = read_line().map(|x| x.parse::<usize>().ok()).ok().flatten();
 
         if let Some(index) = index_input
@@ -81,7 +79,8 @@ pub fn render_list_select<T>(
         {
             return Ok(index);
         }
-        println!("Index Invalid")
+        print!("\x1b[F\x1b[2KIndex Invalid - {}", prompt);
+        std::io::stdout().flush()?;
     }
 }
 
@@ -97,16 +96,14 @@ pub fn render_list_select_all<T>(
     prompt: &str,
     line_renderer: &dyn Fn((usize, &T)) -> Vec<String>,
 ) -> Result<ListSelection, Box<dyn Error>> {
+    let mut rendered_list: Vec<Vec<String>> = list.iter().enumerate().map(line_renderer).collect();
+    rendered_list.insert(0, header.clone());
+    rendered_list.push(footer.clone());
+    render_table(rendered_list);
+
+    print!("{}", prompt);
+    std::io::stdout().flush()?;
     loop {
-        let mut rendered_list: Vec<Vec<String>> =
-            list.iter().enumerate().map(line_renderer).collect();
-        rendered_list.insert(0, header.clone());
-        rendered_list.push(footer.clone());
-        render_table(rendered_list);
-
-        print!("{}", prompt);
-        std::io::stdout().flush()?;
-
         let input = read_line()?;
 
         if input.trim() == "A" {
@@ -118,7 +115,8 @@ pub fn render_list_select_all<T>(
         {
             return Ok(ListSelection::Index(index));
         }
-        println!("Index Invalid")
+        print!("\x1b[F\x1b[2KIndex Invalid - {}", prompt);
+        std::io::stdout().flush()?;
     }
 }
 
@@ -214,13 +212,14 @@ pub fn ask_question<T>(
     question: &str,
     validator: &dyn Fn(&str) -> Result<T, Box<dyn Error>>,
 ) -> Result<T, Box<dyn Error>> {
+    print!("{}", question);
+    std::io::stdout().flush()?;
     loop {
-        print!("{}", question);
-        std::io::stdout().flush()?;
         let line = read_line()?;
         let result = validator(&line);
         if let Err(error) = result {
-            println!("{}", error);
+            print!("\x1b[F\x1b[2K{} - {}", error, question);
+            std::io::stdout().flush()?;
             continue;
         }
         return result;
