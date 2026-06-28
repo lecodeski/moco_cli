@@ -220,13 +220,14 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
             let description = ask_question(
                 &format!(
-                    "New description - Default '{}': ",
-                    activity.description.clone().unwrap()
+                    "New description - Default '{}' (enter space ' ' to empty): ",
+                    activity.description.clone().unwrap_or_default()
                 ),
                 &|answer| {
-                    Ok(match answer.to_string() {
-                        s if s.is_empty() => activity.description.clone().unwrap(),
-                        s => s,
+                    Ok(match answer {
+                        "" => activity.description.clone().unwrap_or_default(),
+                        " " => String::new(),
+                        _ => answer.to_string(),
                     })
                 },
             )?;
