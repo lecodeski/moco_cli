@@ -52,16 +52,18 @@ async fn main() -> Result<(), BoxedError> {
             let bot_api_key =
                 ask_question_mandatory("Enter the MOCO Bot API key: ", &mandatory_validator)?;
 
-            config.borrow_mut().moco_company = Some(moco_company.to_lowercase());
-            config.borrow_mut().moco_api_key = Some(api_key);
-            config.borrow_mut().moco_bot_api_key = Some(bot_api_key);
+            {
+                let mut cfg = config.borrow_mut();
+                cfg.moco_company = Some(moco_company.to_lowercase());
+                cfg.moco_api_key = Some(api_key);
+                cfg.moco_bot_api_key = Some(bot_api_key);
+            }
 
             let firstname = ask_question_mandatory("Enter firstname: ", &mandatory_validator)?;
             let lastname = ask_question_mandatory("Enter lastname:  ", &mandatory_validator)?;
 
-            let client_id = moco_client.get_user_id(firstname, lastname).await?;
-
-            config.borrow_mut().moco_user_id = Some(client_id);
+            config.borrow_mut().moco_user_id =
+                Some(moco_client.get_user_id(firstname, lastname).await?);
             config.borrow_mut().write_config()?;
             println!("🎉 Logged in 🎊")
         }
