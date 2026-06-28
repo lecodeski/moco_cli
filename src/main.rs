@@ -142,9 +142,9 @@ async fn main() -> Result<(), BoxedError> {
             } else {
                 ask_question(
                     "Date (YYYY-MM-DD) - Default 'today': ",
-                    &|answer| match answer.to_string() {
-                        s if s.is_empty() => Ok(Local::now().date_naive()),
-                        s => Ok(s.parse()?),
+                    &|answer| match answer {
+                        "" => Ok(Local::now().date_naive()),
+                        _ => Ok(answer.parse()?),
                     },
                 )?
             };
@@ -197,9 +197,9 @@ async fn main() -> Result<(), BoxedError> {
             let date = ask_question(
                 &format!("New date (YYYY-MM-DD) - Default '{}': ", activity.date),
                 &|answer| {
-                    Ok(match answer.to_string() {
-                        s if s.is_empty() => activity.date.clone(),
-                        s => s,
+                    Ok(match answer {
+                        "" => activity.date.clone(),
+                        _ => answer.to_string(),
                     }
                     .parse::<NaiveDate>()?)
                 },
