@@ -2,7 +2,7 @@ use crate::moco::model::{
     Activity, ControlActivityTimer, CreateActivity, DeleteActivity, EditActivity, Employment,
     GetActivity, PerformanceReport, Projects, WorkTimeAdjustment,
 };
-use chrono::NaiveDate;
+use chrono::{Local, NaiveDate};
 use reqwest::Client;
 use std::rc::Rc;
 use std::{cell::RefCell, error::Error};
@@ -18,6 +18,7 @@ pub struct MocoClient {
 #[derive(Debug, derive_more::Display)]
 enum MocoClientError {
     NotLoggedIn,
+    UserNotFound,
 }
 impl Error for MocoClientError {}
 
@@ -34,14 +35,15 @@ impl MocoClient {
         &self,
         firstname: String,
         lastname: String,
-    ) -> Result<Option<i64>, BoxedError> {
+    ) -> Result<i64, BoxedError> {
         let config = &self.config.borrow();
-        match (config.moco_api_key.as_ref(), config.moco_company.as_ref()) {
+        match (&config.moco_api_key, &config.moco_company) {
             (Some(api_key), Some(company)) => {
                 let employments = self
                     .client
                     .get(format!(
-                        "https://{company}.mocoapp.com/api/v1/users/employments"
+                        "https://{company}.mocoapp.com/api/v1/users/employments?from={}",
+                        Local::now().date_naive()
                     ))
                     .header("Authorization", format!("Token token={}", api_key))
                     .send()
@@ -51,10 +53,12 @@ impl MocoClient {
                 Ok(employments
                     .iter()
                     .find(|employment| {
-                        employment.user.firstname == firstname
-                            && employment.user.lastname == lastname
+                        employment.user.firstname.to_lowercase() == firstname.to_lowercase()
+                            && employment.user.lastname.to_lowercase() == lastname.to_lowercase()
                     })
-                    .map(|employment| employment.user.id))
+                    .ok_or(Box::new(MocoClientError::UserNotFound))?
+                    .user
+                    .id)
             }
             (_, _) => Err(Box::new(MocoClientError::NotLoggedIn)),
         }

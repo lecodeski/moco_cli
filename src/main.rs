@@ -52,7 +52,7 @@ async fn main() -> Result<(), BoxedError> {
             let bot_api_key =
                 ask_question_mandatory("Enter the MOCO Bot API key: ", &mandatory_validator)?;
 
-            config.borrow_mut().moco_company = Some(moco_company);
+            config.borrow_mut().moco_company = Some(moco_company.to_lowercase());
             config.borrow_mut().moco_api_key = Some(api_key);
             config.borrow_mut().moco_bot_api_key = Some(bot_api_key);
 
@@ -61,9 +61,9 @@ async fn main() -> Result<(), BoxedError> {
 
             let client_id = moco_client.get_user_id(firstname, lastname).await?;
 
-            config.borrow_mut().moco_user_id = client_id;
+            config.borrow_mut().moco_user_id = Some(client_id);
             config.borrow_mut().write_config()?;
-            println!("🤩 Logged in 🤩")
+            println!("🎉 Logged in 🎊")
         }
         cli::Commands::List {
             day,
@@ -340,27 +340,22 @@ async fn main() -> Result<(), BoxedError> {
                     "Balance".to_string(),
                 ]];
 
-                list.extend(
-                    monthly_reports
-                        .iter()
-                        .enumerate()
-                        .map(|(index, report)| {
-                            vec![
-                                format!("{:0>2}", report.month.to_string())
-                                    + ": "
-                                    + Month::from_u32(report.month).unwrap().name(),
-                                report.hours_tracked_total.to_string(),
-                                report.target_hours.to_string(),
-                                report.variation.to_string(),
-                                (monthly_reports[..=index]
-                                    .iter()
-                                    .map(|r| r.variation)
-                                    .sum::<f64>()
-                                    + work_time_adjustments)
-                                    .to_string(),
-                            ]
-                        }),
-                );
+                list.extend(monthly_reports.iter().enumerate().map(|(index, report)| {
+                    vec![
+                        format!("{:0>2}", report.month.to_string())
+                            + ": "
+                            + Month::from_u32(report.month).unwrap().name(),
+                        report.hours_tracked_total.to_string(),
+                        report.target_hours.to_string(),
+                        report.variation.to_string(),
+                        (monthly_reports[..=index]
+                            .iter()
+                            .map(|r| r.variation)
+                            .sum::<f64>()
+                            + work_time_adjustments)
+                            .to_string(),
+                    ]
+                }));
 
                 let variation_sum = monthly_reports.iter().map(|m| m.variation).sum::<f64>();
 
