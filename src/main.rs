@@ -73,6 +73,7 @@ async fn main() -> Result<(), BoxedError> {
             date,
         } => {
             print!("List activities for ");
+            std::io::stdout().flush()?;
 
             let (from, to) = match date {
                 Some(date) => (date, date),

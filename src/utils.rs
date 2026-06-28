@@ -145,6 +145,8 @@ pub fn select_from_to_date(
             print!("Day {} in {}, ", day, now.year());
             NaiveDate::from_yo_opt(now.year(), day).expect("invalid day of year")
         };
+
+        std::io::stdout().flush().unwrap();
         (target_day, target_day)
     } else if let Some(week) = week {
         let target_week = if backward {
@@ -166,6 +168,8 @@ pub fn select_from_to_date(
             NaiveDate::from_isoywd_opt(now.year(), week, Mon).expect("invalid calendar week")
         }
         .week(Mon);
+
+        std::io::stdout().flush().unwrap();
         (target_week.first_day(), target_week.last_day())
     } else if let Some(month) = month {
         let target_month = if backward {
@@ -185,6 +189,7 @@ pub fn select_from_to_date(
             then
         };
 
+        std::io::stdout().flush().unwrap();
         (
             target_month.beginning_of_month().date_naive(),
             target_month.end_of_month().date_naive(),
