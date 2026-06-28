@@ -1,13 +1,16 @@
 use chrono::{Datelike, Local, Month, NaiveDate};
-use num_traits::{FromPrimitive, ToPrimitive};
+use num_traits::FromPrimitive;
 //noinspection RsUnresolvedPath
 use owo_colors::OwoColorize;
 use std::rc::Rc;
-use std::{cell::RefCell, error::Error, io::Write, vec};
+use std::str::FromStr;
+use std::{cell::RefCell, io::Write, vec};
 use unicode_ellipsis::truncate_str;
 use utils::{prompt_task_select, render_table};
 
-use crate::moco::model::{ControlActivityTimer, CreateActivity, DeleteActivity, GetActivity};
+use crate::moco::model::{
+    ControlActivityTimer, CreateActivity, DeleteActivity, GetActivity, PerformanceReportMonthly,
+};
 use crate::utils::{
     activity_delete_loop, activity_select, ask_question_mandatory, footer, prompt_activity_select_today,
     prompt_from_to_date, BoxedError,
@@ -306,50 +309,85 @@ async fn main() -> Result<(), BoxedError> {
             let overtime = moco_client.get_user_performance_report().await?;
 
             if monthly {
+                let now = Local::now();
+
+                let monthly_reports: Vec<&PerformanceReportMonthly> = overtime
+                    .monthly
+                    .iter()
+                    .filter(|report| report.month <= now.month())
+                    .collect();
+
+                let work_time_adjustments = moco_client
+                    .get_user_work_time_adjustments()
+                    .await?
+                    .iter()
+                    .filter(|adjustment| {
+                        NaiveDate::from_str(&adjustment.date).unwrap().year() == now.year()
+                    })
+                    .map(|a| a.hours)
+                    .sum::<f64>();
+
                 println!(
-                    "Your monthly overtime report for {}",
+                    "Your monthly overtime report + {work_time_adjustments} adjustments for {}",
                     overtime.annually.year
                 );
 
-                let mut list: Vec<Vec<String>> = overtime
-                    .monthly
-                    .iter()
-                    .map(|report| {
-                        vec![
-                            format!("{:0>2}", report.month.to_string())
-                                + ": "
-                                + Month::from_i64(report.month).unwrap().name(),
-                            report.variation.to_string(),
-                            report.target_hours.to_string(),
-                            report.hours_tracked_total.to_string(),
-                        ]
-                    })
-                    .collect();
+                let mut list: Vec<Vec<String>> = vec![vec![
+                    "Month".to_string(),
+                    "Tracked Hours".to_string(),
+                    "Target Hours".to_string(),
+                    "Overtime".to_string(),
+                    "Balance".to_string(),
+                ]];
 
-                list.insert(
-                    0,
-                    vec![
-                        "Month".to_string(),
-                        "Overtime".to_string(),
-                        "Target Hours".to_string(),
-                        "Tracked Hours".to_string(),
-                    ],
+                list.extend(
+                    monthly_reports
+                        .iter()
+                        .enumerate()
+                        .map(|(index, report)| {
+                            vec![
+                                format!("{:0>2}", report.month.to_string())
+                                    + ": "
+                                    + Month::from_u32(report.month).unwrap().name(),
+                                report.hours_tracked_total.to_string(),
+                                report.target_hours.to_string(),
+                                report.variation.to_string(),
+                                (monthly_reports[..=index]
+                                    .iter()
+                                    .map(|r| r.variation)
+                                    .sum::<f64>()
+                                    + work_time_adjustments)
+                                    .to_string(),
+                            ]
+                        }),
                 );
+
+                let variation_sum = monthly_reports.iter().map(|m| m.variation).sum::<f64>();
 
                 list.push(vec![
                     "==>".to_string(),
-                    overtime.annually.variation.to_string(),
-                    overtime.annually.target_hours.to_string(),
-                    overtime.annually.hours_tracked_total.to_string(),
+                    monthly_reports
+                        .iter()
+                        .map(|m| m.hours_tracked_total)
+                        .sum::<f64>()
+                        .to_string(),
+                    monthly_reports
+                        .iter()
+                        .map(|m| m.target_hours)
+                        .sum::<f64>()
+                        .to_string(),
+                    variation_sum.to_string(),
+                    (variation_sum + work_time_adjustments).to_string(),
                 ]);
 
                 render_table(list);
-            } else {
-                println!(
-                    "Your current overtime until end of today: {}",
-                    overtime.annually.variation_until_today.to_string().bold()
-                );
+                println!()
             }
+
+            println!(
+                "Your current overtime until end of today: {}",
+                overtime.annually.variation_until_today.bold()
+            );
         }
     }
 

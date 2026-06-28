@@ -1,6 +1,6 @@
 use crate::moco::model::{
     Activity, ControlActivityTimer, CreateActivity, DeleteActivity, EditActivity, Employment,
-    GetActivity, PerformanceReport, Projects,
+    GetActivity, PerformanceReport, Projects, WorkTimeAdjustment,
 };
 use chrono::NaiveDate;
 use reqwest::Client;
@@ -223,6 +223,29 @@ impl MocoClient {
                 .send()
                 .await?
                 .json::<PerformanceReport>()
+                .await?),
+            (_, _, _) => Err(Box::new(MocoClientError::NotLoggedIn)),
+        }
+    }
+
+    pub async fn get_user_work_time_adjustments(
+        &self,
+    ) -> Result<Vec<WorkTimeAdjustment>, BoxedError> {
+        let config = &self.config.borrow();
+        match (
+            config.moco_bot_api_key.as_ref(),
+            config.moco_company.as_ref(),
+            config.moco_user_id.as_ref(),
+        ) {
+            (Some(bot_api_key), Some(company), Some(user_id)) => Ok(self
+                .client
+                .get(format!(
+                    "https://{company}.mocoapp.com/api/v1/users/work_time_adjustments?user_id={user_id}"
+                ))
+                .header("Authorization", format!("Token token={}", bot_api_key))
+                .send()
+                .await?
+                .json::<Vec<WorkTimeAdjustment>>()
                 .await?),
             (_, _, _) => Err(Box::new(MocoClientError::NotLoggedIn)),
         }

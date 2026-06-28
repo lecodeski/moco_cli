@@ -191,8 +191,14 @@ pub struct PerformanceReportAnnually {
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct PerformanceReportMonthly {
     pub year: i64,
-    pub month: i64,
+    pub month: u32,
     pub target_hours: f64,
     pub hours_tracked_total: f64,
     pub variation: f64,
+}
+
+#[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct WorkTimeAdjustment {
+    pub date: String,
+    pub hours: f64,
 }
