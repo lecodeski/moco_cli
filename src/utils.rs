@@ -322,7 +322,7 @@ pub async fn activity_select(
                 "Task".to_string(),
                 "Description".to_string(),
             ],
-            Some(footer(activities.clone())),
+            Some(footer(&activities)),
             "Choose your Activity: ",
             &activity_line_renderer,
         )?;
@@ -394,7 +394,7 @@ pub async fn activity_delete_loop(
                 "Task".to_string(),
                 "Description".to_string(),
             ],
-            footer(activities.clone()),
+            footer(&activities),
             "Choose your Activity ('A' deletes all): ",
             &activity_line_renderer,
         )?;
@@ -432,7 +432,7 @@ pub async fn prompt_activity_select_today(
     activity_select(moco_client, activity, now, now).await
 }
 
-pub fn footer(activities: Vec<Activity>) -> Vec<String> {
+pub fn footer(activities: &[Activity]) -> Vec<String> {
     vec![
         "==>".to_string(),
         "".to_string(),

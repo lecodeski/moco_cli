@@ -128,7 +128,7 @@ async fn main() -> Result<(), BoxedError> {
                 ],
             );
 
-            list.push(footer(activities.clone()));
+            list.push(footer(&activities));
 
             render_table(list);
         }
