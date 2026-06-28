@@ -1,5 +1,5 @@
 use chrono::{Datelike, Local, Month, NaiveDate};
-use num_traits::FromPrimitive;
+use num_traits::{FromPrimitive, ToPrimitive};
 //noinspection RsUnresolvedPath
 use owo_colors::OwoColorize;
 use std::rc::Rc;
@@ -9,8 +9,8 @@ use utils::{prompt_task_select, render_table};
 
 use crate::moco::model::{ControlActivityTimer, CreateActivity, DeleteActivity, GetActivity};
 use crate::utils::{
-    activity_delete_loop, activity_select, ask_question_mandatory, footer,
-    prompt_activity_select_today, prompt_from_to_date,
+    activity_delete_loop, activity_select, ask_question_mandatory, footer, prompt_activity_select_today,
+    prompt_from_to_date, BoxedError,
 };
 use crate::{
     moco::{client::MocoClient, model::EditActivity},
@@ -27,7 +27,7 @@ const FORMAT_DATE_DAY: &str = "%A %Y-%m-%d";
 const FORMAT_DATE_DAY_WEEK: &str = constcat::concat!(FORMAT_DATE_DAY, " (CW %V)");
 
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn Error>> {
+async fn main() -> Result<(), BoxedError> {
     let args = cli::init();
     let mut log_builder = env_logger::builder();
     log_builder.parse_default_env();

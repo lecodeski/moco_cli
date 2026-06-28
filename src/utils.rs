@@ -13,7 +13,9 @@ use tabled::settings::style::{BorderColor, HorizontalLine};
 use tabled::settings::{Color, Style};
 use unicode_ellipsis::truncate_str;
 
-pub fn read_line() -> Result<String, Box<dyn Error>> {
+pub(crate) type BoxedError = Box<dyn Error>;
+
+pub fn read_line() -> Result<String, BoxedError> {
     let mut input = String::new();
     std::io::stdin().read_line(&mut input)?;
     input.remove(input.len() - 1);
@@ -61,7 +63,7 @@ pub fn render_list_select<T>(
     footer: Option<Vec<String>>,
     prompt: &str,
     line_renderer: &dyn Fn((usize, &T)) -> Vec<String>,
-) -> Result<usize, Box<dyn Error>> {
+) -> Result<usize, BoxedError> {
     let mut rendered_list: Vec<Vec<String>> = list.iter().enumerate().map(line_renderer).collect();
     rendered_list.insert(0, header.clone());
     if let Some(ref footer) = footer {
@@ -95,7 +97,7 @@ pub fn render_list_select_all<T>(
     footer: Vec<String>,
     prompt: &str,
     line_renderer: &dyn Fn((usize, &T)) -> Vec<String>,
-) -> Result<ListSelection, Box<dyn Error>> {
+) -> Result<ListSelection, BoxedError> {
     let mut rendered_list: Vec<Vec<String>> = list.iter().enumerate().map(line_renderer).collect();
     rendered_list.insert(0, header.clone());
     rendered_list.push(footer.clone());
@@ -195,7 +197,7 @@ pub fn select_from_to_date(
 pub fn ask_question_mandatory(
     question: &str,
     validator: &dyn Fn(&str) -> Option<String>,
-) -> Result<String, Box<dyn Error>> {
+) -> Result<String, BoxedError> {
     loop {
         print!("{}", question);
         std::io::stdout().flush()?;
@@ -210,8 +212,8 @@ pub fn ask_question_mandatory(
 
 pub fn ask_question<T>(
     question: &str,
-    validator: &dyn Fn(&str) -> Result<T, Box<dyn Error>>,
-) -> Result<T, Box<dyn Error>> {
+    validator: &dyn Fn(&str) -> Result<T, BoxedError>,
+) -> Result<T, BoxedError> {
     print!("{}", question);
     std::io::stdout().flush()?;
     loop {
@@ -238,7 +240,7 @@ pub async fn prompt_task_select(
     moco_client: &MocoClient,
     project: Option<i64>,
     task_id: Option<i64>,
-) -> Result<(Project, ProjectTask), Box<dyn Error>> {
+) -> Result<(Project, ProjectTask), BoxedError> {
     let projects = moco_client.get_assigned_projects().await?;
     let project = projects.iter().find(|p| p.id == project.unwrap_or(-1));
 
@@ -297,7 +299,7 @@ pub async fn activity_select(
     activity: Option<i64>,
     from: NaiveDate,
     to: NaiveDate,
-) -> Result<Activity, Box<dyn Error>> {
+) -> Result<Activity, BoxedError> {
     let activities = moco_client.get_activities(from, to, None, None).await?;
     let activity = activities.iter().find(|a| a.id == activity.unwrap_or(-1));
 
@@ -326,7 +328,7 @@ pub async fn activity_select(
     Ok(activity.clone())
 }
 
-pub fn prompt_from_to_date() -> Result<(NaiveDate, NaiveDate), Box<dyn Error>> {
+pub fn prompt_from_to_date() -> Result<(NaiveDate, NaiveDate), BoxedError> {
     let now = Local::now().date_naive();
 
     print!("List activities from (YYYY-MM-DD) - Default 'today': ");
@@ -357,7 +359,7 @@ pub async fn activity_delete_loop(
     mut activity: Option<i64>,
     from: NaiveDate,
     to: NaiveDate,
-) -> Result<(), Box<dyn Error>> {
+) -> Result<(), BoxedError> {
     loop {
         let activities = moco_client.get_activities(from, to, None, None).await?;
 
@@ -417,7 +419,7 @@ pub async fn activity_delete_loop(
 pub async fn prompt_activity_select_today(
     moco_client: &MocoClient,
     activity: Option<i64>,
-) -> Result<Activity, Box<dyn Error>> {
+) -> Result<Activity, BoxedError> {
     let now = Local::now().date_naive();
 
     println!("List activities for today: ");

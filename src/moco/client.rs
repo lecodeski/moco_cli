@@ -8,6 +8,7 @@ use std::rc::Rc;
 use std::{cell::RefCell, error::Error};
 
 use crate::config::AppConfig;
+use crate::utils::BoxedError;
 
 pub struct MocoClient {
     client: Client,
@@ -33,7 +34,7 @@ impl MocoClient {
         &self,
         firstname: String,
         lastname: String,
-    ) -> Result<Option<i64>, Box<dyn Error>> {
+    ) -> Result<Option<i64>, BoxedError> {
         let config = &self.config.borrow();
         match (config.moco_api_key.as_ref(), config.moco_company.as_ref()) {
             (Some(api_key), Some(company)) => {
@@ -65,7 +66,7 @@ impl MocoClient {
         to: NaiveDate,
         task_id: Option<String>,
         term: Option<String>,
-    ) -> Result<Vec<Activity>, Box<dyn Error>> {
+    ) -> Result<Vec<Activity>, BoxedError> {
         let mut parameter = vec![
             ("from", from.to_string()),
             ("to", to.to_string()),
@@ -97,7 +98,7 @@ impl MocoClient {
         }
     }
 
-    pub async fn get_activity(&self, payload: &GetActivity) -> Result<Activity, Box<dyn Error>> {
+    pub async fn get_activity(&self, payload: &GetActivity) -> Result<Activity, BoxedError> {
         let config = &self.config.borrow();
         match (config.moco_api_key.as_ref(), config.moco_company.as_ref()) {
             (Some(api_key), Some(company)) => Ok(self
@@ -115,7 +116,7 @@ impl MocoClient {
         }
     }
 
-    pub async fn create_activity(&self, payload: &CreateActivity) -> Result<(), Box<dyn Error>> {
+    pub async fn create_activity(&self, payload: &CreateActivity) -> Result<(), BoxedError> {
         let config = &self.config.borrow();
         match (config.moco_api_key.as_ref(), config.moco_company.as_ref()) {
             (Some(api_key), Some(company)) => {
@@ -131,7 +132,7 @@ impl MocoClient {
         }
     }
 
-    pub async fn edit_activity(&self, payload: &EditActivity) -> Result<(), Box<dyn Error>> {
+    pub async fn edit_activity(&self, payload: &EditActivity) -> Result<(), BoxedError> {
         let config = &self.config.borrow();
         match (config.moco_api_key.as_ref(), config.moco_company.as_ref()) {
             (Some(api_key), Some(company)) => {
@@ -150,7 +151,7 @@ impl MocoClient {
         }
     }
 
-    pub async fn delete_activity(&self, payload: &DeleteActivity) -> Result<(), Box<dyn Error>> {
+    pub async fn delete_activity(&self, payload: &DeleteActivity) -> Result<(), BoxedError> {
         let config = &self.config.borrow();
         match (config.moco_api_key.as_ref(), config.moco_company.as_ref()) {
             (Some(api_key), Some(company)) => {
@@ -171,7 +172,7 @@ impl MocoClient {
     pub async fn control_activity_timer(
         &self,
         payload: &ControlActivityTimer,
-    ) -> Result<(), Box<dyn Error>> {
+    ) -> Result<(), BoxedError> {
         let config = &self.config.borrow();
         match (config.moco_api_key.as_ref(), config.moco_company.as_ref()) {
             (Some(api_key), Some(company)) => {
@@ -189,7 +190,7 @@ impl MocoClient {
         }
     }
 
-    pub async fn get_assigned_projects(&self) -> Result<Projects, Box<dyn Error>> {
+    pub async fn get_assigned_projects(&self) -> Result<Projects, BoxedError> {
         let config = &self.config.borrow();
         match (config.moco_api_key.as_ref(), config.moco_company.as_ref()) {
             (Some(api_key), Some(company)) => Ok(self
@@ -206,7 +207,7 @@ impl MocoClient {
         }
     }
 
-    pub async fn get_user_performance_report(&self) -> Result<PerformanceReport, Box<dyn Error>> {
+    pub async fn get_user_performance_report(&self) -> Result<PerformanceReport, BoxedError> {
         let config = &self.config.borrow();
         match (
             config.moco_bot_api_key.as_ref(),

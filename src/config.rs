@@ -1,9 +1,7 @@
 use config::Config;
 use serde::{Deserialize, Serialize};
-use std::{
-    error::Error,
-    fs::{create_dir, write, File},
-};
+use std::fs::{create_dir, write, File};
+use crate::utils::BoxedError;
 
 #[derive(Serialize, Deserialize, Clone)]
 pub struct AppConfig {
@@ -17,7 +15,7 @@ fn get_config_path() -> Option<std::path::PathBuf> {
     dirs::config_dir().map(|dir| dir.join("mococli").join("mococli.json"))
 }
 
-pub fn init() -> Result<AppConfig, Box<dyn Error>> {
+pub fn init() -> Result<AppConfig, BoxedError> {
     let config_file = get_config_path();
     let config_file = match config_file {
         Some(path) => {
@@ -39,7 +37,7 @@ pub fn init() -> Result<AppConfig, Box<dyn Error>> {
 }
 
 impl AppConfig {
-    pub fn write_config(&self) -> Result<(), Box<dyn Error>> {
+    pub fn write_config(&self) -> Result<(), BoxedError> {
         let config_file = get_config_path();
         match config_file {
             Some(file) => {
