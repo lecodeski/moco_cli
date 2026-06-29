@@ -106,7 +106,6 @@ async fn main() -> Result<(), BoxedError> {
                             .weekday()
                             .to_string(),
                         activity.hours.to_string(),
-                        truncate_str(&activity.customer.name, 16).to_string(),
                         truncate_str(&activity.project.name, 14).to_string(),
                         activity.task.name.clone(),
                         activity
@@ -123,7 +122,6 @@ async fn main() -> Result<(), BoxedError> {
                     "Date".to_string(),
                     "Day".to_string(),
                     "Hours".to_string(),
-                    "Customer".to_string(),
                     "Project".to_string(),
                     "Task".to_string(),
                     "Description".to_string(),

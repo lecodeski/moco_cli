@@ -317,7 +317,6 @@ pub async fn activity_select(
                 "Index".to_string(),
                 "Date".to_string(),
                 "Hours".to_string(),
-                "Customer".to_string(),
                 "Project".to_string(),
                 "Task".to_string(),
                 "Description".to_string(),
@@ -389,7 +388,6 @@ pub async fn activity_delete_loop(
                 "Index".to_string(),
                 "Date".to_string(),
                 "Hours".to_string(),
-                "Customer".to_string(),
                 "Project".to_string(),
                 "Task".to_string(),
                 "Description".to_string(),
@@ -452,7 +450,6 @@ pub fn activity_line_renderer((index, activity): (usize, &Activity)) -> Vec<Stri
         index.to_string(),
         activity.date.clone(),
         activity.hours.to_string(),
-        truncate_str(&activity.customer.name, 16).to_string(),
         truncate_str(&activity.project.name, 14).to_string(),
         activity.task.name.clone(),
         activity
