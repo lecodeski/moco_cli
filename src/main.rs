@@ -111,8 +111,8 @@ async fn main() -> Result<(), BoxedError> {
                         activity.task.name.clone(),
                         activity
                             .description
-                            .as_ref()
-                            .unwrap_or(&String::new())
+                            .clone()
+                            .unwrap_or(String::new())
                             .to_string(),
                     ]
                 })

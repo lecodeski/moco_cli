@@ -88,7 +88,7 @@ impl MocoClient {
         }
 
         let config = &self.config.borrow();
-        match (config.moco_api_key.as_ref(), config.moco_company.as_ref()) {
+        match (&config.moco_api_key, &config.moco_company) {
             (Some(api_key), Some(company)) => Ok(self
                 .client
                 .get(format!("https://{company}.mocoapp.com/api/v1/activities"))
@@ -104,7 +104,7 @@ impl MocoClient {
 
     pub async fn get_activity(&self, payload: &GetActivity) -> Result<Activity, BoxedError> {
         let config = &self.config.borrow();
-        match (config.moco_api_key.as_ref(), config.moco_company.as_ref()) {
+        match (&config.moco_api_key, &config.moco_company) {
             (Some(api_key), Some(company)) => Ok(self
                 .client
                 .get(format!(
@@ -122,7 +122,7 @@ impl MocoClient {
 
     pub async fn create_activity(&self, payload: &CreateActivity) -> Result<(), BoxedError> {
         let config = &self.config.borrow();
-        match (config.moco_api_key.as_ref(), config.moco_company.as_ref()) {
+        match (&config.moco_api_key, &config.moco_company) {
             (Some(api_key), Some(company)) => {
                 self.client
                     .post(format!("https://{company}.mocoapp.com/api/v1/activities"))
@@ -138,7 +138,7 @@ impl MocoClient {
 
     pub async fn edit_activity(&self, payload: &EditActivity) -> Result<(), BoxedError> {
         let config = &self.config.borrow();
-        match (config.moco_api_key.as_ref(), config.moco_company.as_ref()) {
+        match (&config.moco_api_key, &config.moco_company) {
             (Some(api_key), Some(company)) => {
                 self.client
                     .put(format!(
@@ -157,7 +157,7 @@ impl MocoClient {
 
     pub async fn delete_activity(&self, payload: &DeleteActivity) -> Result<(), BoxedError> {
         let config = &self.config.borrow();
-        match (config.moco_api_key.as_ref(), config.moco_company.as_ref()) {
+        match (&config.moco_api_key, &config.moco_company) {
             (Some(api_key), Some(company)) => {
                 self.client
                     .delete(format!(
@@ -178,7 +178,7 @@ impl MocoClient {
         payload: &ControlActivityTimer,
     ) -> Result<(), BoxedError> {
         let config = &self.config.borrow();
-        match (config.moco_api_key.as_ref(), config.moco_company.as_ref()) {
+        match (&config.moco_api_key, &config.moco_company) {
             (Some(api_key), Some(company)) => {
                 self.client
                     .patch(format!(
@@ -196,7 +196,7 @@ impl MocoClient {
 
     pub async fn get_assigned_projects(&self) -> Result<Projects, BoxedError> {
         let config = &self.config.borrow();
-        match (config.moco_api_key.as_ref(), config.moco_company.as_ref()) {
+        match (&config.moco_api_key, &config.moco_company) {
             (Some(api_key), Some(company)) => Ok(self
                 .client
                 .get(format!(
@@ -214,9 +214,9 @@ impl MocoClient {
     pub async fn get_user_performance_report(&self) -> Result<PerformanceReport, BoxedError> {
         let config = &self.config.borrow();
         match (
-            config.moco_bot_api_key.as_ref(),
-            config.moco_company.as_ref(),
-            config.moco_user_id.as_ref(),
+            &config.moco_bot_api_key,
+            &config.moco_company,
+            &config.moco_user_id,
         ) {
             (Some(bot_api_key), Some(company), Some(user_id)) => Ok(self
                 .client
@@ -237,9 +237,9 @@ impl MocoClient {
     ) -> Result<Vec<WorkTimeAdjustment>, BoxedError> {
         let config = &self.config.borrow();
         match (
-            config.moco_bot_api_key.as_ref(),
-            config.moco_company.as_ref(),
-            config.moco_user_id.as_ref(),
+            &config.moco_bot_api_key,
+            &config.moco_company,
+            &config.moco_user_id,
         ) {
             (Some(bot_api_key), Some(company), Some(user_id)) => Ok(self
                 .client

@@ -457,8 +457,8 @@ pub fn activity_line_renderer((index, activity): (usize, &Activity)) -> Vec<Stri
         activity.task.name.clone(),
         activity
             .description
-            .as_ref()
-            .unwrap_or(&String::new())
+            .clone()
+            .unwrap_or(String::new())
             .to_string(),
     ]
 }
