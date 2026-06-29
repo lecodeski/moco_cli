@@ -128,7 +128,7 @@ async fn main() -> Result<(), BoxedError> {
                 ],
             );
 
-            list.push(footer(&activities));
+            list.push(footer(false, &activities));
 
             render_table(list);
         }

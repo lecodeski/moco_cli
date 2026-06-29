@@ -1,12 +1,12 @@
 use crate::moco::client::MocoClient;
 use crate::moco::model::{Activity, DeleteActivity, Project, ProjectTask};
-//noinspection RsUnresolvedPath
-use owo_colors::OwoColorize;
-use std::{error::Error, io::Write, vec};
-
 use chrono::Weekday::Mon;
 use chrono::{Datelike, Duration, Local, Months, NaiveDate};
 use now::DateTimeNow;
+//noinspection RsUnresolvedPath
+use owo_colors::OwoColorize;
+use std::iter::once;
+use std::{error::Error, io::Write, vec};
 use tabled::builder::Builder;
 use tabled::settings::object::Rows;
 use tabled::settings::style::{BorderColor, HorizontalLine};
@@ -316,12 +316,13 @@ pub async fn activity_select(
             vec![
                 "Index".to_string(),
                 "Date".to_string(),
+                "Day".to_string(),
                 "Hours".to_string(),
                 "Project".to_string(),
                 "Task".to_string(),
                 "Description".to_string(),
             ],
-            Some(footer(&activities)),
+            Some(footer(true, &activities)),
             "Choose your Activity: ",
             &activity_line_renderer,
         )?;
@@ -392,7 +393,7 @@ pub async fn activity_delete_loop(
                 "Task".to_string(),
                 "Description".to_string(),
             ],
-            footer(&activities),
+            footer(true, &activities),
             "Choose your Activity ('A' deletes all): ",
             &activity_line_renderer,
         )?;
@@ -430,25 +431,34 @@ pub async fn prompt_activity_select_today(
     activity_select(moco_client, activity, now, now).await
 }
 
-pub fn footer(activities: &[Activity]) -> Vec<String> {
-    vec![
-        "==>".to_string(),
-        "".to_string(),
-        activities
-            .iter()
-            .fold(0.0, |hours, activity| activity.hours + hours)
-            .to_string(),
-        "".to_string(),
-        "".to_string(),
-        "".to_string(),
-        "".to_string(),
-    ]
+pub fn footer(with_index: bool, activities: &[Activity]) -> Vec<String> {
+    let total_hours = activities
+        .iter()
+        .fold(0.0, |hours, activity| hours + activity.hours);
+
+    once("==>".to_string())
+        .chain(with_index.then(|| "".to_string()))
+        .chain([
+            "".to_string(),
+            total_hours.to_string(),
+            "".to_string(),
+            "".to_string(),
+            "".to_string(),
+            "".to_string(),
+        ])
+        .collect()
 }
 
 pub fn activity_line_renderer((index, activity): (usize, &Activity)) -> Vec<String> {
     vec![
         index.to_string(),
         activity.date.clone(),
+        activity
+            .date
+            .parse::<NaiveDate>()
+            .unwrap()
+            .weekday()
+            .to_string(),
         activity.hours.to_string(),
         truncate_str(&activity.project.name, 14).to_string(),
         activity.task.name.clone(),
