@@ -462,10 +462,6 @@ pub fn activity_line_renderer((index, activity): (usize, &Activity)) -> Vec<Stri
         activity.hours.to_string(),
         truncate_str(&activity.project.name, 14).to_string(),
         activity.task.name.clone(),
-        activity
-            .description
-            .clone()
-            .unwrap_or(String::new())
-            .to_string(),
+        truncate_str(&activity.description.clone().unwrap_or(String::new()), 109).to_string(),
     ]
 }

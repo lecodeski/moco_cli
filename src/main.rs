@@ -108,10 +108,7 @@ async fn main() -> Result<(), BoxedError> {
                         activity.hours.to_string(),
                         truncate_str(&activity.project.name, 14).to_string(),
                         activity.task.name.clone(),
-                        activity
-                            .description
-                            .clone()
-                            .unwrap_or(String::new())
+                        truncate_str(&activity.description.clone().unwrap_or(String::new()), 112)
                             .to_string(),
                     ]
                 })
