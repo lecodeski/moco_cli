@@ -6,199 +6,199 @@ use serde_json::Value;
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct Employment {
-    pub id: i64,
+pub(crate) struct Employment {
+    pub(crate) id: i64,
     #[serde(rename = "weekly_target_hours")]
-    pub weekly_target_hours: f64,
-    pub pattern: Pattern,
-    pub from: String,
-    pub to: Value,
-    pub user: User,
+    pub(crate) weekly_target_hours: f64,
+    pub(crate) pattern: Pattern,
+    pub(crate) from: String,
+    pub(crate) to: Value,
+    pub(crate) user: User,
     #[serde(rename = "created_at")]
-    pub created_at: String,
+    pub(crate) created_at: String,
     #[serde(rename = "updated_at")]
-    pub updated_at: String,
+    pub(crate) updated_at: String,
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct Pattern {
-    pub am: Vec<f64>,
-    pub pm: Vec<f64>,
+pub(crate) struct Pattern {
+    pub(crate) am: Vec<f64>,
+    pub(crate) pm: Vec<f64>,
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct User {
-    pub id: i64,
-    pub firstname: String,
-    pub lastname: String,
+pub(crate) struct User {
+    pub(crate) id: i64,
+    pub(crate) firstname: String,
+    pub(crate) lastname: String,
 }
 
 // Activity
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct Activity {
-    pub id: i64,
-    pub date: String,
-    pub hours: f64,
-    pub seconds: i64,
-    pub description: Option<String>,
-    pub billed: bool,
-    pub billable: bool,
-    pub tag: String,
+pub(crate) struct Activity {
+    pub(crate) id: i64,
+    pub(crate) date: String,
+    pub(crate) hours: f64,
+    pub(crate) seconds: i64,
+    pub(crate) description: Option<String>,
+    pub(crate) billed: bool,
+    pub(crate) billable: bool,
+    pub(crate) tag: String,
     #[serde(rename = "remote_service")]
-    pub remote_service: Option<String>,
+    pub(crate) remote_service: Option<String>,
     #[serde(rename = "remote_id")]
-    pub remote_id: Option<String>,
+    pub(crate) remote_id: Option<String>,
     #[serde(rename = "remote_url")]
-    pub remote_url: Value,
-    pub project: ActivityProject,
-    pub task: Task,
-    pub customer: Customer,
-    pub user: User,
+    pub(crate) remote_url: Value,
+    pub(crate) project: ActivityProject,
+    pub(crate) task: Task,
+    pub(crate) customer: Customer,
+    pub(crate) user: User,
     #[serde(rename = "timer_started_at")]
-    pub timer_started_at: Value,
+    pub(crate) timer_started_at: Value,
     #[serde(rename = "created_at")]
-    pub created_at: String,
+    pub(crate) created_at: String,
     #[serde(rename = "updated_at")]
-    pub updated_at: String,
+    pub(crate) updated_at: String,
     #[serde(rename = "hourly_rate")]
-    pub hourly_rate: f64,
+    pub(crate) hourly_rate: f64,
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct ActivityProject {
-    pub id: i64,
-    pub name: String,
-    pub billable: bool,
+pub(crate) struct ActivityProject {
+    pub(crate) id: i64,
+    pub(crate) name: String,
+    pub(crate) billable: bool,
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct Task {
-    pub id: i64,
-    pub name: String,
-    pub billable: bool,
+pub(crate) struct Task {
+    pub(crate) id: i64,
+    pub(crate) name: String,
+    pub(crate) billable: bool,
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct Customer {
-    pub id: i64,
-    pub name: String,
+pub(crate) struct Customer {
+    pub(crate) id: i64,
+    pub(crate) name: String,
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct GetActivity {
+pub(crate) struct GetActivity {
     #[serde(rename = "activity_id")]
-    pub activity_id: i64,
+    pub(crate) activity_id: i64,
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct CreateActivity {
-    pub date: String,
-    pub description: String,
+pub(crate) struct CreateActivity {
+    pub(crate) date: String,
+    pub(crate) description: String,
     #[serde(rename = "project_id")]
-    pub project_id: i64,
+    pub(crate) project_id: i64,
     #[serde(rename = "task_id")]
-    pub task_id: i64,
-    pub hours: Option<f64>,
-    pub seconds: Option<i64>,
-    pub tag: Option<String>,
+    pub(crate) task_id: i64,
+    pub(crate) hours: Option<f64>,
+    pub(crate) seconds: Option<i64>,
+    pub(crate) tag: Option<String>,
     #[serde(rename = "remote_service")]
-    pub remote_service: Option<String>,
+    pub(crate) remote_service: Option<String>,
     #[serde(rename = "remote_id")]
-    pub remote_id: Option<String>,
+    pub(crate) remote_id: Option<String>,
     #[serde(rename = "remote_url")]
-    pub remote_url: Option<String>,
+    pub(crate) remote_url: Option<String>,
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct EditActivity {
+pub(crate) struct EditActivity {
     #[serde(rename = "activity_id")]
-    pub activity_id: i64,
+    pub(crate) activity_id: i64,
     #[serde(rename = "project_id")]
-    pub project_id: i64,
+    pub(crate) project_id: i64,
     #[serde(rename = "task_id")]
-    pub task_id: i64,
-    pub date: String,
-    pub description: String,
-    pub hours: String,
+    pub(crate) task_id: i64,
+    pub(crate) date: String,
+    pub(crate) description: String,
+    pub(crate) hours: String,
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct ControlActivityTimer {
-    pub control: String,
+pub(crate) struct ControlActivityTimer {
+    pub(crate) control: String,
     #[serde(rename = "activity_id")]
-    pub activity_id: i64,
+    pub(crate) activity_id: i64,
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct DeleteActivity {
+pub(crate) struct DeleteActivity {
     #[serde(rename = "activity_id")]
-    pub activity_id: i64,
+    pub(crate) activity_id: i64,
 }
 
 //Project
 
-pub type Projects = Vec<Project>;
+pub(crate) type Projects = Vec<Project>;
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct Project {
-    pub id: i64,
-    pub identifier: String,
-    pub name: String,
-    pub active: bool,
-    pub billable: bool,
-    pub customer: Customer,
-    pub tasks: Vec<ProjectTask>,
+pub(crate) struct Project {
+    pub(crate) id: i64,
+    pub(crate) identifier: String,
+    pub(crate) name: String,
+    pub(crate) active: bool,
+    pub(crate) billable: bool,
+    pub(crate) customer: Customer,
+    pub(crate) tasks: Vec<ProjectTask>,
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct ProjectTask {
-    pub id: i64,
-    pub name: String,
-    pub active: bool,
-    pub billable: bool,
+pub(crate) struct ProjectTask {
+    pub(crate) id: i64,
+    pub(crate) name: String,
+    pub(crate) active: bool,
+    pub(crate) billable: bool,
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct PerformanceReport {
-    pub annually: PerformanceReportAnnually,
-    pub monthly: Vec<PerformanceReportMonthly>,
+pub(crate) struct PerformanceReport {
+    pub(crate) annually: PerformanceReportAnnually,
+    pub(crate) monthly: Vec<PerformanceReportMonthly>,
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct PerformanceReportAnnually {
-    pub year: i64,
-    pub employment_hours: f64,
-    pub target_hours: f64,
-    pub hours_tracked_total: f64,
-    pub variation: f64,
-    pub variation_until_today: f64,
+pub(crate) struct PerformanceReportAnnually {
+    pub(crate) year: i64,
+    pub(crate) employment_hours: f64,
+    pub(crate) target_hours: f64,
+    pub(crate) hours_tracked_total: f64,
+    pub(crate) variation: f64,
+    pub(crate) variation_until_today: f64,
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct PerformanceReportMonthly {
-    pub year: i64,
-    pub month: u32,
-    pub target_hours: f64,
-    pub hours_tracked_total: f64,
-    pub variation: f64,
+pub(crate) struct PerformanceReportMonthly {
+    pub(crate) year: i64,
+    pub(crate) month: u32,
+    pub(crate) target_hours: f64,
+    pub(crate) hours_tracked_total: f64,
+    pub(crate) variation: f64,
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Serialize, Deserialize)]
-pub struct WorkTimeAdjustment {
-    pub date: String,
-    pub hours: f64,
+pub(crate) struct WorkTimeAdjustment {
+    pub(crate) date: String,
+    pub(crate) hours: f64,
 }

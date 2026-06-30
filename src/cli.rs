@@ -13,7 +13,7 @@ const HELP_STYLES: Styles = Styles::styled()
     .invalid(AnsiColor::Yellow.on_default().bold())
     .error(AnsiColor::Red.on_default().bold());
 
-pub fn init() -> Cli {
+pub(crate) fn init() -> Cli {
     Cli::parse()
 }
 
@@ -24,16 +24,16 @@ pub fn init() -> Cli {
     long_about = "A terminal-based interface for interacting with the MOCO time tracking system, allowing you to manage activities, track time, and view reports."
 )]
 #[clap(styles = HELP_STYLES)]
-pub struct Cli {
+pub(crate) struct Cli {
     #[clap(subcommand)]
-    pub command: Commands,
+    pub(crate) command: Commands,
 
     #[clap(long, help = "Enable debug logging for troubleshooting")]
-    pub debug: bool,
+    pub(crate) debug: bool,
 }
 
 #[derive(Debug, Subcommand)]
-pub enum Commands {
+pub(crate) enum Commands {
     #[clap(
         about = "Log into MOCO",
         long_about = "Configure your MOCO credentials, including company name, API keys, and user identification."
@@ -132,7 +132,7 @@ pub enum Commands {
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ValueEnum)]
-pub enum Timer {
+pub(crate) enum Timer {
     Start,
     Stop,
 }

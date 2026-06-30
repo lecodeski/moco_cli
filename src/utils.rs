@@ -17,14 +17,14 @@ pub(crate) type BoxedError = Box<dyn Error>;
 
 pub(crate) const ARROW: &str = "==>";
 
-pub fn read_line() -> Result<String, BoxedError> {
+pub(crate) fn read_line() -> Result<String, BoxedError> {
     let mut input = String::new();
     std::io::stdin().read_line(&mut input)?;
     input.remove(input.len() - 1);
     Ok(input)
 }
 
-pub fn render_table(list: Vec<Vec<String>>) {
+pub(crate) fn render_table(list: Vec<Vec<String>>) {
     if list.is_empty() {
         return;
     }
@@ -59,7 +59,7 @@ pub fn render_table(list: Vec<Vec<String>>) {
     println!("{}", table);
 }
 
-pub fn render_list_select<T>(
+pub(crate) fn render_list_select<T>(
     list: &[T],
     header: Vec<String>,
     footer: Option<Vec<String>>,
@@ -88,12 +88,12 @@ pub fn render_list_select<T>(
     }
 }
 
-pub enum ListSelection {
+pub(crate) enum ListSelection {
     Index(usize),
     All,
 }
 
-pub fn render_list_select_all<T>(
+pub(crate) fn render_list_select_all<T>(
     list: &[T],
     header: Vec<String>,
     footer: Vec<String>,
@@ -124,7 +124,7 @@ pub fn render_list_select_all<T>(
     }
 }
 
-pub fn select_from_to_date(
+pub(crate) fn select_from_to_date(
     day: Option<u32>,
     week: Option<u32>,
     month: Option<u32>,
@@ -201,7 +201,7 @@ pub fn select_from_to_date(
     }
 }
 
-pub fn ask_question_mandatory(
+pub(crate) fn ask_question_mandatory(
     question: &str,
     validator: &dyn Fn(&str) -> Option<String>,
 ) -> Result<String, BoxedError> {
@@ -217,7 +217,7 @@ pub fn ask_question_mandatory(
     }
 }
 
-pub fn ask_question<T>(
+pub(crate) fn ask_question<T>(
     question: &str,
     validator: &dyn Fn(&str) -> Result<T, BoxedError>,
 ) -> Result<T, BoxedError> {
@@ -235,7 +235,7 @@ pub fn ask_question<T>(
     }
 }
 
-pub fn mandatory_validator(input: &str) -> Option<String> {
+pub(crate) fn mandatory_validator(input: &str) -> Option<String> {
     if input.is_empty() {
         Some("Input is required".to_string())
     } else {
@@ -243,7 +243,7 @@ pub fn mandatory_validator(input: &str) -> Option<String> {
     }
 }
 
-pub async fn prompt_task_select(
+pub(crate) async fn prompt_task_select(
     moco_client: &MocoClient,
     project: Option<i64>,
     task_id: Option<i64>,
@@ -301,7 +301,7 @@ pub async fn prompt_task_select(
     Ok((project.clone(), task.clone()))
 }
 
-pub async fn activity_select(
+pub(crate) async fn activity_select(
     moco_client: &MocoClient,
     activity: Option<i64>,
     from: NaiveDate,
@@ -335,7 +335,7 @@ pub async fn activity_select(
     Ok(activity.clone())
 }
 
-pub fn prompt_from_to_date() -> Result<(NaiveDate, NaiveDate), BoxedError> {
+pub(crate) fn prompt_from_to_date() -> Result<(NaiveDate, NaiveDate), BoxedError> {
     let now = Local::now().date_naive();
 
     print!("List activities from (YYYY-MM-DD) - Default 'today': ");
@@ -361,7 +361,7 @@ pub fn prompt_from_to_date() -> Result<(NaiveDate, NaiveDate), BoxedError> {
     Ok((from, to))
 }
 
-pub async fn activity_delete_loop(
+pub(crate) async fn activity_delete_loop(
     moco_client: &MocoClient,
     mut activity: Option<i64>,
     from: NaiveDate,
@@ -422,7 +422,7 @@ pub async fn activity_delete_loop(
     Ok(())
 }
 
-pub async fn prompt_activity_select_today(
+pub(crate) async fn prompt_activity_select_today(
     moco_client: &MocoClient,
     activity: Option<i64>,
 ) -> Result<Activity, BoxedError> {
@@ -433,7 +433,7 @@ pub async fn prompt_activity_select_today(
     activity_select(moco_client, activity, now, now).await
 }
 
-pub fn footer(with_index: bool, activities: &[Activity]) -> Vec<String> {
+pub(crate) fn footer(with_index: bool, activities: &[Activity]) -> Vec<String> {
     let total_hours = activities
         .iter()
         .fold(0.0, |hours, activity| hours + activity.hours);
@@ -451,7 +451,7 @@ pub fn footer(with_index: bool, activities: &[Activity]) -> Vec<String> {
         .collect()
 }
 
-pub fn activity_line_renderer((index, activity): (usize, &Activity)) -> Vec<String> {
+pub(crate) fn activity_line_renderer((index, activity): (usize, &Activity)) -> Vec<String> {
     vec![
         index.to_string(),
         activity.date.clone(),

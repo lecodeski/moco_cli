@@ -10,7 +10,7 @@ use std::{cell::RefCell, error::Error};
 use crate::config::AppConfig;
 use crate::utils::BoxedError;
 
-pub struct MocoClient {
+pub(crate) struct MocoClient {
     client: Client,
     config: Rc<RefCell<AppConfig>>,
 }
@@ -24,14 +24,14 @@ impl Error for MocoClientError {}
 
 #[allow(clippy::await_holding_refcell_ref)]
 impl MocoClient {
-    pub fn new(app_config: &Rc<RefCell<AppConfig>>) -> Self {
+    pub(crate) fn new(app_config: &Rc<RefCell<AppConfig>>) -> Self {
         MocoClient {
             client: Client::new(),
             config: app_config.clone(),
         }
     }
 
-    pub async fn get_user_id(
+    pub(crate) async fn get_user_id(
         &self,
         firstname: String,
         lastname: String,
@@ -64,7 +64,7 @@ impl MocoClient {
         }
     }
 
-    pub async fn get_activities(
+    pub(crate) async fn get_activities(
         &self,
         from: NaiveDate,
         to: NaiveDate,
@@ -102,7 +102,7 @@ impl MocoClient {
         }
     }
 
-    pub async fn get_activity(&self, payload: &GetActivity) -> Result<Activity, BoxedError> {
+    pub(crate) async fn get_activity(&self, payload: &GetActivity) -> Result<Activity, BoxedError> {
         let config = &self.config.borrow();
         match (&config.moco_api_key, &config.moco_company) {
             (Some(api_key), Some(company)) => Ok(self
@@ -120,7 +120,7 @@ impl MocoClient {
         }
     }
 
-    pub async fn create_activity(&self, payload: &CreateActivity) -> Result<(), BoxedError> {
+    pub(crate) async fn create_activity(&self, payload: &CreateActivity) -> Result<(), BoxedError> {
         let config = &self.config.borrow();
         match (&config.moco_api_key, &config.moco_company) {
             (Some(api_key), Some(company)) => {
@@ -136,7 +136,7 @@ impl MocoClient {
         }
     }
 
-    pub async fn edit_activity(&self, payload: &EditActivity) -> Result<(), BoxedError> {
+    pub(crate) async fn edit_activity(&self, payload: &EditActivity) -> Result<(), BoxedError> {
         let config = &self.config.borrow();
         match (&config.moco_api_key, &config.moco_company) {
             (Some(api_key), Some(company)) => {
@@ -155,7 +155,7 @@ impl MocoClient {
         }
     }
 
-    pub async fn delete_activity(&self, payload: &DeleteActivity) -> Result<(), BoxedError> {
+    pub(crate) async fn delete_activity(&self, payload: &DeleteActivity) -> Result<(), BoxedError> {
         let config = &self.config.borrow();
         match (&config.moco_api_key, &config.moco_company) {
             (Some(api_key), Some(company)) => {
@@ -173,7 +173,7 @@ impl MocoClient {
         }
     }
 
-    pub async fn control_activity_timer(
+    pub(crate) async fn control_activity_timer(
         &self,
         payload: &ControlActivityTimer,
     ) -> Result<(), BoxedError> {
@@ -194,7 +194,7 @@ impl MocoClient {
         }
     }
 
-    pub async fn get_assigned_projects(&self) -> Result<Projects, BoxedError> {
+    pub(crate) async fn get_assigned_projects(&self) -> Result<Projects, BoxedError> {
         let config = &self.config.borrow();
         match (&config.moco_api_key, &config.moco_company) {
             (Some(api_key), Some(company)) => Ok(self
@@ -211,7 +211,9 @@ impl MocoClient {
         }
     }
 
-    pub async fn get_user_performance_report(&self) -> Result<PerformanceReport, BoxedError> {
+    pub(crate) async fn get_user_performance_report(
+        &self,
+    ) -> Result<PerformanceReport, BoxedError> {
         let config = &self.config.borrow();
         match (
             &config.moco_bot_api_key,
@@ -232,7 +234,7 @@ impl MocoClient {
         }
     }
 
-    pub async fn get_user_work_time_adjustments(
+    pub(crate) async fn get_user_work_time_adjustments(
         &self,
     ) -> Result<Vec<WorkTimeAdjustment>, BoxedError> {
         let config = &self.config.borrow();

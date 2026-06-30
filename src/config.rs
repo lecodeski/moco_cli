@@ -1,21 +1,21 @@
+use crate::utils::BoxedError;
 use config::Config;
 use serde::{Deserialize, Serialize};
-use std::fs::{create_dir, write, File};
-use crate::utils::BoxedError;
+use std::fs::{File, create_dir, write};
 
 #[derive(Serialize, Deserialize, Clone)]
-pub struct AppConfig {
-    pub moco_company: Option<String>,
-    pub moco_api_key: Option<String>,
-    pub moco_bot_api_key: Option<String>,
-    pub moco_user_id: Option<i64>,
+pub(crate) struct AppConfig {
+    pub(crate) moco_company: Option<String>,
+    pub(crate) moco_api_key: Option<String>,
+    pub(crate) moco_bot_api_key: Option<String>,
+    pub(crate) moco_user_id: Option<i64>,
 }
 
 fn get_config_path() -> Option<std::path::PathBuf> {
     dirs::config_dir().map(|dir| dir.join("mococli").join("mococli.json"))
 }
 
-pub fn init() -> Result<AppConfig, BoxedError> {
+pub(crate) fn init() -> Result<AppConfig, BoxedError> {
     let config_file = get_config_path();
     let config_file = match config_file {
         Some(path) => {
@@ -37,7 +37,7 @@ pub fn init() -> Result<AppConfig, BoxedError> {
 }
 
 impl AppConfig {
-    pub fn write_config(&self) -> Result<(), BoxedError> {
+    pub(crate) fn write_config(&self) -> Result<(), BoxedError> {
         let config_file = get_config_path();
         match config_file {
             Some(file) => {
