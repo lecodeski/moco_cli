@@ -257,7 +257,7 @@ pub(crate) async fn prompt_task_select(
         let project_index = render_list_select(
             &projects,
             vec![
-                "Index".to_string(),
+                "#".to_string(),
                 "Customer".to_string(),
                 "Project".to_string(),
                 "Project ID".to_string(),
@@ -286,11 +286,7 @@ pub(crate) async fn prompt_task_select(
     } else {
         let task_index = render_list_select(
             &active_tasks,
-            vec![
-                "Index".to_string(),
-                "Task".to_string(),
-                "Task ID".to_string(),
-            ],
+            vec!["#".to_string(), "Task".to_string(), "Task ID".to_string()],
             None,
             "Choose your Task: ",
             &(|(index, task)| vec![index.to_string(), task.name.clone(), task.id.to_string()]),
@@ -316,7 +312,7 @@ pub(crate) async fn activity_select(
         let activity_index = render_list_select(
             &activities,
             vec![
-                "Index".to_string(),
+                "#".to_string(),
                 "Date".to_string(),
                 "Day".to_string(),
                 "Hours".to_string(),
@@ -388,7 +384,7 @@ pub(crate) async fn activity_delete_loop(
         let selection = render_list_select_all(
             &activities,
             vec![
-                "Index".to_string(),
+                "#".to_string(),
                 "Date".to_string(),
                 "Hours".to_string(),
                 "Project".to_string(),
