@@ -31,7 +31,7 @@ pub(crate) fn render_table(list: Vec<Vec<String>>) {
 
     let mut builder = Builder::default();
     for (row_index, row) in list.iter().enumerate() {
-        let is_emphasized = row_index == 0 || row.first().map(|c| c == ARROW).unwrap_or(false);
+        let is_emphasized = row_index == 0 || row.contains(&ARROW.to_string());
         let styled = row.iter().map(|cell| {
             if is_emphasized {
                 cell.bold().to_string()
@@ -44,16 +44,16 @@ pub(crate) fn render_table(list: Vec<Vec<String>>) {
         builder.push_record(styled);
     }
 
-    let mut table = builder.build();
     let line = HorizontalLine::new('─').intersection('+');
+    let appendix_count = list
+        .iter()
+        .filter(|row| row.contains(&ARROW.to_string()))
+        .count();
 
-    let appendix = match list.last().unwrap().first().unwrap().as_str() {
-        ARROW => 1,
-        _ => 0,
-    };
-    table.with(Style::psql().horizontals([(1, line), (list.len() - appendix, line)]));
+    let mut table = builder.build();
+    table.with(Style::psql().horizontals([(1, line), (list.len() - appendix_count, line)]));
     table.modify(
-        Rows::one(list.len() - appendix),
+        Rows::one(list.len() - appendix_count),
         BorderColor::new().top(Color::FG_GREEN),
     );
     println!("{}", table);
@@ -434,10 +434,10 @@ pub(crate) fn footer(with_index: bool, activities: &[Activity]) -> Vec<String> {
         .iter()
         .fold(0.0, |hours, activity| hours + activity.hours);
 
-    once(ARROW.to_string())
+    once("".to_string())
         .chain(with_index.then(|| "".to_string()))
         .chain([
-            "".to_string(),
+            ARROW.to_string(),
             total_hours.to_string(),
             "".to_string(),
             "".to_string(),
