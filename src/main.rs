@@ -12,8 +12,8 @@ use crate::moco::model::{
     ControlActivityTimer, CreateActivity, DeleteActivity, GetActivity, PerformanceReportMonthly,
 };
 use crate::utils::{
-    activity_delete_loop, activity_select, ask_question_mandatory, footer, prompt_activity_select_today,
-    prompt_from_to_date, BoxedError,
+    activity_delete_loop, activity_select, ask_question_mandatory, footer, prompt_activity_select_today, prompt_from_to_date,
+    BoxedError, ARROW,
 };
 use crate::{
     moco::{client::MocoClient, model::EditActivity},
@@ -358,7 +358,7 @@ async fn main() -> Result<(), BoxedError> {
                 let variation_sum = monthly_reports.iter().map(|m| m.variation).sum::<f64>();
 
                 list.push(vec![
-                    "==>".to_string(),
+                    ARROW.to_string(),
                     monthly_reports
                         .iter()
                         .map(|m| m.hours_tracked_total)

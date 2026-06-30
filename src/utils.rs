@@ -15,6 +15,8 @@ use unicode_ellipsis::truncate_str;
 
 pub(crate) type BoxedError = Box<dyn Error>;
 
+pub(crate) const ARROW: &str = "==>";
+
 pub fn read_line() -> Result<String, BoxedError> {
     let mut input = String::new();
     std::io::stdin().read_line(&mut input)?;
@@ -29,7 +31,7 @@ pub fn render_table(list: Vec<Vec<String>>) {
 
     let mut builder = Builder::default();
     for (row_index, row) in list.iter().enumerate() {
-        let is_emphasized = row_index == 0 || row.first().map(|c| c == "==>").unwrap_or(false);
+        let is_emphasized = row_index == 0 || row.first().map(|c| c == ARROW).unwrap_or(false);
         let styled = row.iter().map(|cell| {
             if is_emphasized {
                 cell.bold().to_string()
@@ -46,7 +48,7 @@ pub fn render_table(list: Vec<Vec<String>>) {
     let line = HorizontalLine::new('─').intersection('+');
 
     let appendix = match list.last().unwrap().first().unwrap().as_str() {
-        "==>" => 1,
+        ARROW => 1,
         _ => 0,
     };
     table.with(Style::psql().horizontals([(1, line), (list.len() - appendix, line)]));
@@ -436,7 +438,7 @@ pub fn footer(with_index: bool, activities: &[Activity]) -> Vec<String> {
         .iter()
         .fold(0.0, |hours, activity| hours + activity.hours);
 
-    once("==>".to_string())
+    once(ARROW.to_string())
         .chain(with_index.then(|| "".to_string()))
         .chain([
             "".to_string(),
