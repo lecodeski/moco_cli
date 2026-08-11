@@ -12,8 +12,8 @@ use crate::moco::model::{
     ControlActivityTimer, CreateActivity, DeleteActivity, GetActivity, PerformanceReportMonthly,
 };
 use crate::utils::{
-    activity_delete_loop, activity_select, ask_question_mandatory, footer, prompt_activity_select_today, prompt_from_to_date,
-    BoxedError, ARROW,
+    ARROW, BoxedError, activity_delete_loop, activity_select, ask_question_mandatory, footer,
+    prompt_activity_select_today, prompt_from_to_date,
 };
 use crate::{
     moco::{client::MocoClient, model::EditActivity},
