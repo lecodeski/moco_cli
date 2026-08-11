@@ -41,7 +41,7 @@ pub(crate) enum Commands {
     Login,
     #[clap(
         about = "List activities (Precedence as listed)",
-        long_about = "View tracked activities for a specific day, week, or month.\nThe Precedence refers to the order in which the flag args are listed below displayed.\n'--backward' is ignored when using the '--date' flag."
+        long_about = "View tracked activities for a specific date, day, week, or month.\nThe Precedence refers to the order in which the flag args are listed below displayed.\n'--backward' is ignored when using the '--date' flag."
     )]
     List {
         #[clap(long, help = "Show activities for a specific date (YYYY-MM-DD)")]
@@ -73,7 +73,7 @@ pub(crate) enum Commands {
         #[clap(long, help = "The ID of the task")]
         task: Option<i64>,
 
-        #[clap(long, help = "The number of hours to log (if omitted, timer starts)")]
+        #[clap(long, help = "The number of hours to log (0 starts a timer)")]
         hours: Option<f64>,
 
         #[clap(long, help = "The date for the activity (YYYY-MM-DD)")]
