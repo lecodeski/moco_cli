@@ -386,6 +386,7 @@ pub(crate) async fn activity_delete_loop(
             vec![
                 "#".to_string(),
                 "Date".to_string(),
+                "Day".to_string(),
                 "Hours".to_string(),
                 "Project".to_string(),
                 "Task".to_string(),
@@ -439,7 +440,6 @@ pub(crate) fn footer(with_index: bool, activities: &[Activity]) -> Vec<String> {
         .chain([
             ARROW.to_string(),
             total_hours.to_string(),
-            "".to_string(),
             "".to_string(),
             "".to_string(),
             "".to_string(),
