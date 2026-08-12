@@ -15,7 +15,8 @@ Features:
 - 🔐 **Login** to a MOCO workspace and persist credentials locally.
 - 📋 **List** activities for a date, day, week or month (with totals, so you don't have to do mental math).
 - ➕ **New** activity creation (interactive or via flags), optionally starting a timer.
-- ✏️ **Edit** an existing activity (date, hours, description).
+- ✏️ **Edit** an existing activity (date, hours, description) — current values are prefilled
+  in the prompt, ready for in-place editing.
 - 🗑️ **Rm** (delete) an activity — single, or in a loop until the day is empty.
 - ⏯️ **Timer** start/stop for activities.
 - 📊 **Overtime** report (current overtime, or a monthly breakdown incl. work-time adjustments).
@@ -228,6 +229,7 @@ No other environment variables are read by `mococli`.
 - **Serialization:** [`serde`](https://crates.io/crates/serde), `serde_json`
 - **Dates:** [`chrono`](https://crates.io/crates/chrono), `now`
 - **Tables:** [`tabled`](https://crates.io/crates/tabled) (ansi)
+- **Line editing:** [`rustyline`](https://crates.io/crates/rustyline) (prefilled prompts in `edit`)
 - **Truncation:** [`unicode-ellipsis`](https://crates.io/crates/unicode-ellipsis)
 - **Colors & Styling:** [`owo-colors`](https://crates.io/crates/owo-colors)
 - **Logging:** [`log`](https://crates.io/crates/log), [`env_logger`](https://crates.io/crates/env_logger)

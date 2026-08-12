@@ -12,8 +12,8 @@ use crate::moco::model::{
     ControlActivityTimer, CreateActivity, DeleteActivity, GetActivity, PerformanceReportMonthly,
 };
 use crate::utils::{
-    ARROW, BoxedError, activity_delete_loop, activity_select, ask_question_mandatory, footer,
-    prompt_activity_select_today, prompt_from_to_date,
+    ARROW, BoxedError, activity_delete_loop, activity_select, ask_question_mandatory,
+    ask_question_prefilled, footer, prompt_activity_select_today, prompt_from_to_date,
 };
 use crate::{
     moco::{client::MocoClient, model::EditActivity},
@@ -195,22 +195,15 @@ async fn main() -> Result<(), BoxedError> {
                 }
             }?;
 
-            let date = ask_question(
-                &format!("New date (YYYY-MM-DD) - Default '{}': ", activity.date),
-                &|answer| {
-                    Ok(match answer {
-                        "" => activity.date.clone(),
-                        _ => answer.to_string(),
-                    }
-                    .parse::<NaiveDate>()?)
-                },
-            )?;
+            let date = ask_question_prefilled("New date (YYYY-MM-DD): ", &activity.date, &|answer| {
+                Ok(answer.parse::<NaiveDate>()?)
+            })?;
 
-            let hours = ask_question(
-                &format!("New duration (hours) - Default '{}': ", activity.hours),
+            let hours = ask_question_prefilled(
+                "New duration (hours): ",
+                &activity.hours.to_string(),
                 &|answer| {
                     Ok(match answer.replacen(',', ".", 1) {
-                        s if s.is_empty() => activity.hours.to_string(),
                         s if s == "." => "".to_string(),
                         s if s.starts_with('.') => format!("0{}", s),
                         s => s,
@@ -219,18 +212,10 @@ async fn main() -> Result<(), BoxedError> {
                 },
             )?;
 
-            let description = ask_question(
-                &format!(
-                    "New description - Default '{}' (enter space ' ' to empty): ",
-                    activity.description.clone().unwrap_or_default()
-                ),
-                &|answer| {
-                    Ok(match answer {
-                        "" => activity.description.clone().unwrap_or_default(),
-                        " " => String::new(),
-                        _ => answer.to_string(),
-                    })
-                },
+            let description = ask_question_prefilled(
+                "New description: ",
+                &activity.description.clone().unwrap_or_default(),
+                &|answer| Ok(answer.to_string()),
             )?;
 
             moco_client

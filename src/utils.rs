@@ -235,6 +235,26 @@ pub(crate) fn ask_question<T>(
     }
 }
 
+pub(crate) fn ask_question_prefilled<T>(
+    question: &str,
+    initial: &str,
+    validator: &dyn Fn(&str) -> Result<T, BoxedError>,
+) -> Result<T, BoxedError> {
+    let mut editor = rustyline::DefaultEditor::new()?;
+    let mut prompt = question.to_string();
+    loop {
+        let line = editor.readline_with_initial(&prompt, (initial, ""))?;
+        match validator(&line) {
+            Ok(value) => return Ok(value),
+            Err(error) => {
+                print!("\x1b[F\x1b[2K");
+                std::io::stdout().flush()?;
+                prompt = format!("{} - {}", error, question);
+            }
+        }
+    }
+}
+
 pub(crate) fn mandatory_validator(input: &str) -> Option<String> {
     if input.is_empty() {
         Some("Input is required".to_string())
